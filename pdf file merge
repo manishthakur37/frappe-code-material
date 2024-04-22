@@ -1,0 +1,32 @@
+import io
+import os
+import frappe
+from PyPDF2 import PdfFileMerger
+@frappe.whitelist()
+def merge_pdfs(doc, method=None):
+    pdf_splitter_doc = frappe.get_doc('PDF Splitter', doc)
+    print("***************")
+    print(pdf_splitter_doc)
+    merge_document = pdf_splitter_doc.get('merge_document', [])
+    print("Merge Document -----", merge_document)
+    if not merge_document:
+        frappe.throw("No documents to merge. Please add documents in the Merge Document Upload table.")
+    pdf_paths = []
+    for row in merge_document:
+        pdf_path = frappe.get_site_path('public', row.get('upload_file', ''))
+        print("Full PDF PATH----------------", pdf_path)
+        if os.path.exists(pdf_path):
+            pdf_paths.append(pdf_path)
+            print(f"File exists at path: {pdf_path}")
+        else:
+            frappe.log_error(f"File not found at path: {pdf_path}")
+    pdf_merger = PdfFileMerger()
+    print(pdf_merger,"*************************")
+    for pdf_path in pdf_paths:
+        pdf_merger.append(pdf_path)
+    num_pages = len(pdf_merger.pages)
+    print(f"Number of pages in merged document: {num_pages}")
+    # Save the merged PDF to BytesIO
+    merged_pdf_content = io.BytesIO()
+    pdf_merger.write(merged_pdf_content)
+    pdf_merger.close()
