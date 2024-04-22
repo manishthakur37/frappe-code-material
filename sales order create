@@ -1,0 +1,71 @@
+
+@frappe.whitelist()
+def create_sales_order(so_id=None,sync=None,order_list={}):
+    try:
+        res = frappe._dict()
+        if so_id:
+            draft_sales_order(so_id)
+            frappe.db.delete("Sales Order Item",{"parent":so_id})
+            sales_order = frappe.get_doc("Sales Order",so_id)
+            for item in order_list.get("items"):
+                sales_order.append("items", {
+                    "item_code": item.get("item_code"),
+                    "qty": item.get("qty"),
+                    "rate": item.get("rate")
+                })
+            sales_order.mode_of_payment = order_list.get("mode_of_payment")
+            sales_order.mpesa_no = order_list.get("mpesa_no")
+            sales_order.save(ignore_permissions=True)
+            sales_order.submit()
+            frappe.db.commit()
+            if sync==1 and sales_order.mode_of_payment == "Cash":
+                create_sales_invoice(sales_order.name)
+                si_id=frappe.db.get_value('Sales Invoice Item',{'sales_order':sales_order.name},'parent')
+            res['message'] = "success"
+            res["sales_order"] ={
+                "name" : sales_order.name,
+                "Updated":1,
+                "doc_status" : sales_order.docstatus,
+                "mode_of_payment":sales_order.mode_of_payment,
+                "sale_invoice_id":(si_id if sync==1 and sales_order.mode_of_payment == "Cash" else None)
+            }
+            return res
+        else:
+            sales_order = frappe.new_doc("Sales Order")
+            sales_order.company = frappe.db.get_value("User", frappe.session.user, "company")
+            sales_order.customer = order_list.get("customer")
+            sales_order.selling_price_list = frappe.db.get_value("Price List", {'company': sales_order.company, 'selling': 1, 'enabled': 1} , "name")
+            sales_order.sales_type = 'Sales'
+            arr = order_list.get("transaction_date").split(" ")
+            sales_order.transaction_date = arr[0]
+            sales_order.transaction_time = arr[1]
+            sales_order.delivery_date = order_list.get("delivery_date")
+            for item in order_list.get("items"):
+                sales_order.append("items", {
+                    "item_code": item.get("item_code"),
+                    "qty": item.get("qty"),
+                    "rate": item.get("rate")
+                })
+            sales_order.status = order_list.get("status")
+            sales_order.mode_of_payment = order_list.get("mode_of_payment")
+            sales_order.mpesa_no = order_list.get("mpesa_no")
+            sales_order.save(ignore_permissions=True)
+            sales_order.submit()
+            frappe.db.commit()
+            if sync==1 and sales_order.mode_of_payment == "Cash":
+                create_sales_invoice(sales_order.name)
+                si_id=frappe.db.get_value('Sales Invoice Item',{'sales_order':sales_order.name},'parent')
+            res['message'] = "success"
+            res["sales_order"] ={"name" : sales_order.name,
+                "doc_status" : sales_order.docstatus,
+                "sale_invoice_id":(si_id if sync==1 and sales_order.mode_of_payment == "Cash" else None)
+            }
+            return res
+    except Exception as e:
+        print(frappe.get_traceback())
+        sales_order.log_error(frappe.get_traceback(), e)
+        frappe.clear_messages()
+        frappe.local.response["message"] = {
+            "success_key":0,
+            "message":"Invalid values please check your request parameters"
+        }
