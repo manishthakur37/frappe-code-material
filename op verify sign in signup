@@ -1,0 +1,58 @@
+# Function to verify OTP and set a new password
+@frappe.whitelist(allow_guest=True)
+def verify_otp():
+    try:
+        # Check if the request method is POST
+        if frappe.local.request.method != "POST":
+            return "Only POST requests are allowed."
+
+        # Get the request body
+        body = frappe.local.form_dict
+
+        # Validate the request body
+        if not body:
+            return "Request body is empty."
+
+        otp_type = body.get("type")
+
+        if otp_type == "Signup":
+            required_fields = ["email", "otp", "type"]
+        elif otp_type == "Forgot":
+            required_fields = ["email", "new_password", "otp", "type"]
+        else:
+            return "Invalid request type."
+
+        if not all(body.get(field) for field in required_fields):
+            return f"Required fields ({', '.join(required_fields)}) are missing for verification."
+
+        # Get the latest OTP entry for the given email and type
+        otp_entry = frappe.get_all(
+            "OTP Log",
+            filters={"email": body.get("email"), "type": otp_type},
+            fields=["name", "otp"],
+            order_by="creation DESC",
+            limit=1
+        )
+
+        if otp_entry and otp_entry[0]["otp"] == body.get("otp"):
+            if otp_type == "Forgot":
+                # Only update the password if the type is "Forgot"
+                user = frappe.get_doc("User", {"email": body.get("email")})
+                user.set("new_password", body.get("new_password"))
+                user.save(ignore_permissions=True)
+                frappe.db.commit()
+
+                return {
+                    "status_code": 200,
+                    "message": "Password successfully updated."
+                }
+            elif otp_type == "Signup":
+                return "Signup verification successful."
+            else:
+                return "Invalid request type."
+        else:
+            return "Invalid OTP. Please try again."
+
+    except Exception as e:
+        frappe.log_error(f"Error in verify_otp function: {e}")
+        return "An error occurred while processing your request."
