@@ -1,0 +1,164 @@
+api.py  file -----------------------------------------
+
+# import pandas as pd
+# import frappe
+# from urllib.parse import urlparse
+# import os
+
+# @frappe.whitelist(allow_guest=True)
+# def import_attendance_from_csv(file_data):
+#     try:
+#         if file_data:
+#             # Return the file_data string =>  /private/files/Attendance test.csv
+#             parsed_url = urlparse(file_data)
+#             # file_link = 'https://' + file_data
+#             # file_path = f"./{frappe.local.site}/'private'{file_data}"
+            
+#             file_name = os.path.basename(file_data)
+            
+#             file_path = os.path.join(frappe.get_site_path(), 'private', 'files', file_name)
+
+#             print('\n\n\n\n\n\n\n file_path:', file_path, '\n\n\n\n\n\n')
+            
+
+#             # Read the file content using Pandas
+#             df = pd.read_csv(file_path)  # Index at 4th column
+
+#             # Check if DataFrame is empty or not correctly formed
+#             if df.empty:
+#                 return "Error: No data found in the CSV file after the header."
+
+#             # Replace NaN values with None or a default value before processing
+#             df = df.where(pd.notnull(df), None)
+
+#             # Process each row in the DataFrame
+#             for index, row in df.iterrows():
+#                 print('\n\n\n\n\n\n\n index and row:', index, row, '\n\n\n\n\n\n')
+#                 # Create or update Attendance record
+#                 attendance_doc = frappe.new_doc('Attendance')
+#                 attendance_doc.employee = row.get('Employee') or ""
+#                 attendance_doc.full_name = row.get('Full Name') or ""
+#                 attendance_doc.department = row.get('Department') or ""
+#                 attendance_doc.company = row.get('Company') or ""
+#                 attendance_doc.status = row.get('Status') or ""
+#                 attendance_doc.attendance_date = row.get('Attendance Date') or ""
+#                 attendance_doc.save(ignore_permissions=True)
+#             frappe.db.commit()
+
+#             return "Attendance imported successfully."
+#         else:
+#             return "No file data provided."
+#     except Exception as e:
+#         frappe.log_error("Error importing attendance from CSV: {0}".format(str(e)))
+#         return "Error importing attendance from CSV: {0}".format(str(e))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import pandas as pd
+import frappe
+from urllib.parse import urlparse
+import os
+
+@frappe.whitelist(allow_guest=True)
+def import_attendance_from_file(file_data):
+    try:
+        if file_data:
+            # Extract file name from file_data
+            file_name = os.path.basename(file_data)
+            
+            # Construct file path
+            file_path = os.path.join(frappe.get_site_path(), 'private', 'files', file_name)
+
+            # Read the file content using Pandas
+            if file_name.endswith('.csv'):
+                df = pd.read_csv(file_path)
+            elif file_name.endswith('.xlsx'):
+                df = pd.read_excel(file_path)
+            else:
+                return "Unsupported file format."
+
+            # Check if DataFrame is empty or not correctly formed
+            if df.empty:
+                return "Error: No data found in the file after the header."
+
+            # Replace NaN values with None or a default value before processing
+            df = df.where(pd.notnull(df), None)
+
+            # Process each row in the DataFrame
+            for index, row in df.iterrows():
+                # Create or update Attendance record
+                attendance_doc = frappe.new_doc('Attendance')
+                attendance_doc.employee = row.get('Employee') or ""
+                attendance_doc.full_name = row.get('Full Name') or ""
+                attendance_doc.department = row.get('Department') or ""
+                attendance_doc.company = row.get('Company') or ""
+                attendance_doc.status = row.get('Status') or ""
+                attendance_doc.attendance_date = row.get('Attendance Date') or ""
+                attendance_doc.insert(ignore_permissions=True)
+            frappe.db.commit()
+
+            return "Attendance imported successfully."
+        else:
+            return "No file data provided."
+    except Exception as e:
+        frappe.log_error("Error importing attendance from file: {0}".format(str(e)))
+        return "Error importing attendance from file: {0}".format(str(e))
+
+
+
+
+
+
+
+//api.js file -----------------------------
+// Copyright (c) 2024, mkt and contributors
+// For license information, please see license.txt
+
+frappe.ui.form.on("Data Import Attendece", {
+	refresh(frm) {
+        frm.add_custom_button(__('Import Attendance'), function() {
+            // Trigger file upload process
+            frappe.prompt({
+                label: __('Upload CSV File'),
+                fieldname: 'csv_file',
+                fieldtype: 'Attach',
+                reqd: 1
+            }, function(values){
+                // Once the user selects a file, upload it
+                frappe.call({
+                    method: 'learn.learn.api.import_attendance_from_file',
+                    args: { file_data: values.csv_file },
+                    callback: function(response) {
+                        // Display response to the user
+                        frappe.msgprint(response.message);
+                    }
+                });
+            }, __('Submit'));
+        });
+	},
+});
+
+
+
+
+
+
+
+
+
+
+
