@@ -1,0 +1,28 @@
+ except Exception as e:
+        print("Error:", e)
+        frappe.clear_messages()
+        # Create a new Flight Error Log document
+        error_log = frappe.new_doc("Flight Error Log")
+        error_log.title = str(e)
+        error_log.title_copy = str(e)
+        error_log.error = frappe.get_traceback()
+        error_log.insert(ignore_permissions=True)
+        frappe.db.commit()
+        send_error_email(str(e))  # Sending error message by email
+        return {"success_key": 0, "message": "Error creating customer"}
+
+def send_error_email(error_message):
+    email_subject = "Error Creating Customer"
+    email_content = f"An error occurred while creating a customer. Details:\n\n{error_message}\n\nYou can view more details in the ERPNext system."
+    recipient = "flight.error@yopmail.com"  # Enter the email address where you want to receive error notifications
+    sender = "manish.kumar@nestorbird.com"  # Enter the email address of the sender
+
+    frappe.sendmail(
+        recipients=recipient,
+        sender=sender,
+        subject=email_subject,
+        message=email_content,
+    )
+
+
+
