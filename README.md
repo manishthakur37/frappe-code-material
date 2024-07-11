@@ -3,7 +3,7 @@
   <img src="https://cdn-icons-png.flaticon.com/512/6295/6295417.png" width="100" />
 </p>
 <p align="center">
-    <h1 align="center">README-AI-STREAMLIT</h1>
+    <h1 align="center">README-FRAPPE-CODE-MATERIAL</h1>
 </p>
 <p align="center">
     <em><code>► INSERT-TEXT-HERE</code></em>
