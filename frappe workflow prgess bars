@@ -1,0 +1,163 @@
+// frappe.ui.form.on('Material Request', {
+//     refresh: function(frm) {
+//         // Get the current workflow state
+//         var workflow_state = frm.doc.workflow_state;
+
+//         // Define the states and their corresponding progress percentages
+//         var workflow_states = {
+//             "Draft": 0,
+//             "Submitted": 25,
+//             "Approved By Principal": 50,
+//             "Approved By Inspection Desk": 75,
+//             "Approved By Stock Admin": 100
+//         };
+
+//         // Get the progress percentage based on the current state
+//         var progress_percentage = workflow_states[workflow_state] || 0;
+
+//         // Generate the HTML for the progress bar with red and cream colors
+//         var progress_bar_html = `
+//             <div class="progress" style="background-color: #FFFDD0;"> <!-- Cream background color -->
+//                 <div class="progress-bar" role="progressbar" style="width: ${progress_percentage}%; background-color: red;" aria-valuenow="${progress_percentage}" aria-valuemin="0" aria-valuemax="100">
+//                     ${progress_percentage}%
+//                 </div>
+//             </div>
+//         `;
+
+//         // Set the HTML field's content to the generated progress bar
+//         frm.fields_dict['custom_workflow_progress'].wrapper.innerHTML = progress_bar_html;
+//     }
+// });
+
+
+
+
+// frappe.ui.form.on('Material Request', {
+//     refresh: function(frm) {
+//         // Get the current workflow state
+//         var workflow_state = frm.doc.workflow_state;
+
+//         // Define the states and their corresponding progress percentages
+//         var workflow_states = {
+//             "Draft": 0,
+//             "Submitted": 25,
+//             "Approved By Principal": 50,
+//             "Approved By Inspection Desk": 75,
+//             "Approved By Stock Admin": 100
+//         };
+
+//         // Get the progress percentage based on the current state
+//         var progress_percentage = workflow_states[workflow_state] || 0;
+
+//         // Generate the HTML for the progress bar with modern design
+//         var progress_bar_html = `
+//             <div class="progress" style="background-color: #FFFDD0; height: 30px; border-radius: 15px; overflow: hidden;"> <!-- Cream background color with rounded edges -->
+//                 <div class="progress-bar" role="progressbar" style="width: ${progress_percentage}%; background-color: red; height: 100%; line-height: 30px; text-align: center; color: white; border-radius: 15px;" aria-valuenow="${progress_percentage}" aria-valuemin="0" aria-valuemax="100">
+//                     ${progress_percentage}%
+//                 </div>
+//             </div>
+//         `;
+
+//         // Set the HTML field's content to the generated progress bar
+//         frm.fields_dict['custom_workflow_progress'].wrapper.innerHTML = progress_bar_html;
+//     }
+// });
+
+
+
+
+frappe.ui.form.on('Material Request', {
+    refresh: function(frm) {
+        // Get the current workflow state
+        var workflow_state = frm.doc.workflow_state;
+
+        // Define the states and their corresponding progress percentages
+        var workflow_states = ["Draft", "Submitted", "Approved By Principal", "Approved By Inspection Desk", "Approved By Stock Admin"];
+        var progress_index = workflow_states.indexOf(workflow_state);
+        var progress_percentage = (progress_index + 1) / workflow_states.length * 100;
+
+        // Generate the HTML for the custom progress bar
+        var progress_bar_html = `
+            <div class="workflow-progress-container">
+                ${workflow_states.map((state, index) => `
+                    <div class="workflow-step ${index <= progress_index ? 'completed' : ''}">
+                        <div class="icon">
+                            ${index < progress_index ? '<span class="checkmark">&#10003;</span>' : ''}
+                            ${index == progress_index ? '<span class="current">&#9998;</span>' : ''}
+                            ${index > progress_index ? '<span class="upcoming">&#9675;</span>' : ''}
+                        </div>
+                        <div class="label">${state}</div>
+                    </div>
+                `).join('')}
+            </div>
+            <style>
+                .workflow-progress-container {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    width: 100%;
+                }
+                .workflow-step {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    flex: 1;
+                    position: relative;
+                }
+                .workflow-step .icon {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 16px;
+                    background-color: #f0f0f0;
+                    border: 2px solid #ccc;
+                }
+                .workflow-step.completed .icon {
+                    background-color: green;
+                    border-color: green;
+                    color: white;
+                }
+                .workflow-step.completed .icon .checkmark {
+                    display: block;
+                }
+                .workflow-step .icon .current {
+                    background-color: yellow;
+                    border: 2px solid red;
+                    color: red;
+                    border-radius: 50%;
+                    padding: 5px;
+                }
+                .workflow-step .icon .upcoming {
+                    color: gray;
+                }
+                .workflow-step .label {
+                    margin-top: 5px;
+                    font-size: 12px;
+                    text-align: center;
+                }
+                .workflow-step:before {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: -50%;
+                    right: 50%;
+                    height: 4px;
+                    background-color: #ccc;
+                    z-index: -1;
+                }
+                .workflow-step:first-child:before {
+                    display: none;
+                }
+                .workflow-step.completed:before {
+                    background-color: green;
+                }
+            </style>
+        `;
+
+        // Set the HTML field's content to the generated progress bar
+        frm.fields_dict['custom_workflow_progress'].wrapper.innerHTML = progress_bar_html;
+    }
+});
