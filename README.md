@@ -122,13 +122,13 @@ Ensure you have the following dependencies installed on your system:
 1. Clone the readme-ai-streamlit repository:
 
 ```sh
-git clone https://github.com/eli64s/readme-ai-streamlit
+https://github.com/manishthakur37/frappe-code-mat.git
 ```
 
 2. Change to the project directory:
 
 ```sh
-cd readme-ai-streamlit
+cd frappe-code-mat
 ```
 
 3. Install the dependencies:
