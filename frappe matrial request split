@@ -1,0 +1,178 @@
+    
+import frappe
+from frappe.model.workflow import apply_workflow
+
+
+def set_title(self, metod):
+    if self.custom_manual == 1:
+        self.title = self.name
+    else:
+        self.title = self.custom_parent_mr
+    self.save()
+
+
+# Call this on Change
+def on_change(doc, method):
+    # This is for new entry
+    if doc.custom_change_state == "Approved By Principal" and doc.custom_manual == 1:
+        item_groups = {}
+        for item in doc.items:
+            group = item.get('custom_super_category')
+            item_details = {
+                'item_name': item.get('item_name'),
+                'item_code': item.get('item_code'),
+                'qty': item.get('qty'),
+                'warehouse': item.get('warehouse'),
+                'schedule_date' : item.get('schedule_date'),
+                'custom_super_category': item.get('custom_super_category')
+            }
+            if group not in item_groups:
+                item_groups[group] = []
+            item_groups[group].append(item_details)
+        for group, items in item_groups.items():
+            create_material_request(items, doc)
+    
+    
+    
+    
+    
+    if doc.custom_change_state == "Approved By Inspection Desk" and doc.custom_manual == 0 and doc.custom_ig_segregation == 1:
+        item_groups = {}
+        for item in doc.items:
+            group = item.get('item_group')
+            item_details = {
+                'item_name': item.get('item_name'),
+                'item_code': item.get('item_code'),
+                'qty': item.get('qty'),
+                'warehouse': item.get('warehouse'),
+                'schedule_date' : item.get('schedule_date')
+            }
+            if group not in item_groups:
+                item_groups[group] = []
+            item_groups[group].append(item_details)
+        for group, items in item_groups.items():
+            create_material_request(items, doc)
+    
+    if doc.custom_change_state == "Approved By Stock Admin" and doc.custom_manual == 0 and doc.custom_ig_segregation == 0 and doc.custom_ic_segregation == 1:
+        brand_groups = {}
+            
+        for item in doc.items:
+            brand = item.get('brand')
+            if brand not in brand_groups:
+                brand_groups[brand] = []
+            brand_groups[brand].append({
+                'item_name': item.get('item_name'),
+                'item_code': item.get('item_code'),
+                'qty': item.get('qty'),
+                'warehouse': item.get('warehouse'),
+                'schedule_date': item.get('schedule_date')
+            })
+
+        # Create Material Requests for each brand group
+        for brand, items in brand_groups.items():
+            create_material_request(items, doc)
+
+
+
+
+
+
+
+def create_material_request(items, doc):
+    if doc.custom_manual == 1:
+        custom_item_branch = items[0].get('custom_super_category')
+        mr = frappe.get_doc({
+            "doctype": "Material Request",
+            "material_request_type": doc.material_request_type,
+            "items": items,
+            "custom_manual" : 0,
+            "custom_item_brand" : custom_item_branch,
+            "custom_ig_segregation" : 1,
+            # "custom_change_state" : "Approved By Principal"
+        })
+        mr.insert()
+        update_workflow_state(mr)
+    if doc.custom_manual == 0 and doc.custom_ig_segregation == 1:
+        mr = frappe.get_doc({
+            "doctype": "Material Request",
+            "material_request_type": doc.material_request_type,
+            "items": items,
+            "custom_manual" : 0,
+            "custom_ig_segregation" : 0,
+            "custom_ic_segregation" : 1,
+            # "custom_change_state" : "Approved By Inspection Desk"
+        })
+        mr.insert()
+        update_workflow_state(mr)
+        
+        
+        
+        
+    
+    if doc.custom_manual == 0 and doc.custom_ig_segregation == 0 and doc.custom_ic_segregation == 1:
+        mr = frappe.get_doc({
+            "doctype": "Material Request",
+            "material_request_type": doc.material_request_type,
+            "items": items,
+            "custom_manual" : 0,
+            "custom_ig_segregation" : 0,
+            "custom_ic_segregation" : 0,
+            "custom_request_approved" : 1,
+            # "custom_change_state" : "Approved By Stock Admin"
+        })
+        mr.insert()
+        update_workflow_state(mr)
+    
+   
+    
+    
+    
+def update_workflow_state(self):
+    print("this is called or not 111111")
+    if self.custom_ig_segregation == 1:
+        if self.workflow_state == "Draft":
+            apply_workflow(self, "Submit")
+        if self.workflow_state == "Submitted":
+            apply_workflow(self, "Approve")
+            
+    if self.custom_ic_segregation == 1:
+        if self.workflow_state == "Draft":
+            apply_workflow(self, "Submit")
+        if self.workflow_state == "Submitted":
+            apply_workflow(self, "Approve")
+        if self.workflow_state == "Approved By Principal":
+            apply_workflow(self, "Approve")
+            
+    if self.custom_request_approved == 1:
+        if self.workflow_state == "Draft":
+            apply_workflow(self, "Submit")
+        if self.workflow_state == "Submitted":
+            apply_workflow(self, "Approve")
+        if self.workflow_state == "Draft":
+            apply_workflow(self, "Submit")
+        if self.workflow_state == "Submitted":
+            apply_workflow(self, "Approve")
+        if self.workflow_state == "Approved By Principal":
+            apply_workflow(self, "Approve")
+        if self.workflow_state == "Approved By Inspection Desk":
+            apply_workflow(self, "Approve")
+        
+
+
+
+
+
+
+
+
+def get_permission_query_conditions(user):
+    if not user:
+        user = frappe.session.user
+    
+    # Check if the user is an administrator
+    if user == "Administrator":
+        return ""
+
+    # Construct the condition for non-administrator users
+    conditions = f"""(`tabMaterial Request`.`custom_item_brand` != '' OR `tabMaterial Request`.`owner` = {frappe.db.escape(user)})"""
+    return conditions
