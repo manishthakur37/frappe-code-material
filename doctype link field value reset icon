@@ -1,0 +1,17 @@
+frappe.ui.form.on('Delivery Note', {
+    refresh: function(frm) {
+        $.each(frm.fields_dict, function(fieldname, field) {
+            if (field.df.fieldtype === 'Link') {
+                if (!field.$clear_icon_appended) {
+                    field.$clear_icon_appended = true;
+                    field.set_label(field.df.label + ' - <i class="fa fa-remove"></i>');
+                    $(field.label_area).on('click', '.fa-remove', function() {
+                        frm.set_value(fieldname, '');
+                        return false;
+                    });
+                }
+            }
+        });
+    }
+});
+
