@@ -288,3 +288,578 @@ $('<style>')
         pointer-events: auto;
     }
 `).appendTo('head');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------- new code same function
+
+
+
+// $(document).on('app_ready', function() {
+//     // Function to get a cookie by name
+//     function getCookie(name) {
+//         const value = `; ${document.cookie}`;
+//         const parts = value.split(`; ${name}=`);
+//         if (parts.length === 2) return parts.pop().split(';').shift();
+//     }
+
+//     // Function to set a cookie
+//     function setCookie(name, value, days) {
+//         let expires = "";
+//         if (days) {
+//             const date = new Date();
+//             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+//             expires = "; expires=" + date.toUTCString();
+//         }
+//         document.cookie = name + "=" + (value || "") + expires + "; path=/";
+//     }
+
+//     // Function to get a session storage item
+//     function getSessionItem(name) {
+//         return sessionStorage.getItem(name);
+//     }
+
+//     // Function to set a session storage item
+//     function setSessionItem(name, value) {
+//         sessionStorage.setItem(name, value);
+//     }
+
+//     // Get the current user
+//     let currentUser = frappe.session.user;
+
+//     // Check if the dialog has already been shown for the current user in this session
+//     if (!getSessionItem('dialog_shown_' + currentUser)) {
+//         let fields = [];
+//         frappe.call({
+//             method: "frappe.core.doctype.session_default_settings.session_default_settings.get_session_default_values",
+//             callback: function (data) {
+//                 fields = JSON.parse(data.message);
+//                 let perms = frappe.perm.get_perm("Session Default Settings");
+//                 // Add settings button only if user is a System Manager or has permission on 'Session Default Settings'
+//                 if (frappe.user_roles.includes("System Manager") || perms[0].read == 1) {
+//                     fields.push({
+//                         fieldname: "settings",
+//                         fieldtype: "Button",
+//                         label: __("Settings"),
+//                         click: () => {
+//                             frappe.set_route(
+//                                 "Form",
+//                                 "Session Default Settings",
+//                                 "Session Default Settings"
+//                             );
+//                         },
+//                     });
+//                 }
+//                 // Create a dialog
+//                 let d = new frappe.ui.Dialog({
+//                     title: __("Session Defaults"),
+//                     fields: fields,
+//                     primary_action_label: __("Save"),
+//                     primary_action(values) {
+//                         // If default is not set for a particular field in prompt
+//                         fields.forEach(function (d) {
+//                             if (!values[d.fieldname]) {
+//                                 values[d.fieldname] = "";
+//                             }
+//                         });
+//                         frappe.call({
+//                             method: "frappe.core.doctype.session_default_settings.session_default_settings.set_session_default_values",
+//                             args: {
+//                                 default_values: values,
+//                             },
+//                             callback: function (data) {
+//                                 if (data.message == "success") {
+//                                     frappe.show_alert({
+//                                         message: __("Session Defaults Saved"),
+//                                         indicator: "green",
+//                                     });
+//                                     frappe.ui.toolbar.clear_cache();
+//                                 } else {
+//                                     frappe.show_alert({
+//                                         message: __("An error occurred while setting Session Defaults"),
+//                                         indicator: "red",
+//                                     });
+//                                 }
+//                                 d.hide();
+//                             },
+//                         });
+//                     }
+//                 });
+
+//                 // Show the dialog
+//                 d.show();
+
+//                 // Set the flag in session storage to prevent showing the dialog again for this user in the same session
+//                 setSessionItem('dialog_shown_' + currentUser, 'true');
+//             },
+//         });
+//     }
+// });
+
+// // Clear the session storage item on logout
+// $(document).on('frappe.ui.toolbar.clear_cache', function() {
+//     let currentUser = frappe.session.user;
+//     sessionStorage.removeItem('dialog_shown_' + currentUser);
+// });
+
+
+
+// ----------------------------------------------------------------------------------------------------
+    
+// $(document).on('app_ready', function() {
+//     if (document.referrer.endsWith("/")) {
+//         // app ready after login, let's rumble
+//         console.log("let's set the session defaults");
+//         // get persistent session settings
+        
+//         frappe.call({
+//             'method': "frappe.client.get_list",
+//             'args': {
+//                 'doctype': "Employee",
+//                 'filters': [[ "Employee","user_id","=",frappe.session.user ]],
+//                 'fields': ["company"]
+//             },
+//             'callback': function(response) {
+//               //console.log(response.message.length)
+//                 if (response.message > "0") {
+//                     response.message.forEach(function (setting) {
+//                         console.log(setting.company);
+//                         // var key = setting.Key1.toLowerCase().replaceAll(" ", "_");
+//                         frappe.defaults.set_user_default_local("company", setting.company);
+//                     });
+//                 }
+//                 else{ // fallback to popup the setup_session_defaults
+//                     frappe.ui.toolbar.setup_session_defaults();
+//                 }
+//             }
+//         });
+//     }
+// });
+
+
+
+
+// $(document).ready(function() {
+//     if (document.referrer.endsWith("/app/home")) {
+//         // app ready after login, let's rumble
+//         console.log("let's set the session defaults");
+//         // get persistent session settings
+//         frappe.call({
+//             'method': "frappe.client.get_list",
+//             'args': {
+//                 'doctype': "Employee",
+//                 'filters': [[ "Employee","user_id","=",frappe.session.user ]],
+//                 'fields': ["company"]
+//             },
+//             'callback': function(response) {
+//               //console.log(response.message.length)
+//                 if (response.message > "0") {
+//                     response.message.forEach(function (setting) {
+//                         console.log(setting.company);
+//                         // var key = setting.Key1.toLowerCase().replaceAll(" ", "_");
+//                         frappe.defaults.set_user_default_local("company", setting.company);
+//                     });
+//                 }
+//                 else{ // fallback to popup the setup_session_defaults
+//                     frappe.ui.toolbar.setup_session_defaults();
+//                 }
+//             }
+//         });
+//     }
+// });
+
+
+
+
+
+
+
+
+$(document).ready(function() {
+    // Function to get a session storage item
+    function getSessionItem(name) {
+        return sessionStorage.getItem(name);
+    }
+
+    // Function to set a session storage item
+    function setSessionItem(name, value) {
+        sessionStorage.setItem(name, value);
+    }
+
+    // Clear session storage on logout
+    function clearSessionItems() {
+        sessionStorage.clear();
+    }
+
+    // Get the current user
+    let currentUser = frappe.session.user;
+
+    // Clear the session storage if the current user changes
+    if (!getSessionItem('current_user') || getSessionItem('current_user') !== currentUser) {
+        clearSessionItems();
+        setSessionItem('current_user', currentUser);
+    }
+
+    // Check if the dialog has already been shown for the current user in this session
+    if (currentUser !== "Administrator" && !getSessionItem('dialog_shown_' + currentUser)) {
+        let fields = [];
+        frappe.call({
+            method: "frappe.core.doctype.session_default_settings.session_default_settings.get_session_default_values",
+            callback: function (data) {
+                fields = JSON.parse(data.message);
+                let perms = frappe.perm.get_perm("Session Default Settings");
+                // Add settings button only if user is a System Manager or has permission on 'Session Default Settings'
+                if (frappe.user_roles.includes("System Manager") || perms[0].read == 1) {
+                    fields.push({
+                        fieldname: "settings",
+                        fieldtype: "Button",
+                        label: __("Settings"),
+                        click: () => {
+                            frappe.set_route(
+                                "Form",
+                                "Session Default Settings",
+                                "Session Default Settings"
+                            );
+                        },
+                    });
+                }
+                // Create a dialog
+                let d = new frappe.ui.Dialog({
+                    title: __("Select Company"),
+                    fields: fields,
+                    primary_action_label: __("Save"),
+                    primary_action(values) {
+                        // If default is not set for a particular field in prompt
+                        fields.forEach(function (d) {
+                            if (!values[d.fieldname]) {
+                                values[d.fieldname] = "";
+                            }
+                        });
+                        frappe.call({
+                            method: "frappe.core.doctype.session_default_settings.session_default_settings.set_session_default_values",
+                            args: {
+                                default_values: values,
+                            },
+                            callback: function (data) {
+                                if (data.message == "success") {
+                                    frappe.show_alert({
+                                        message: __("Session Defaults Saved"),
+                                        indicator: "green",
+                                    });
+                                    frappe.ui.toolbar.clear_cache();
+                                } else {
+                                    frappe.show_alert({
+                                        message: __("An error occurred while setting Session Defaults"),
+                                        indicator: "red",
+                                    });
+                                }
+                                d.hide();
+                                $('body').removeClass('dialog-open');
+                            },
+                        });
+                    },
+                    // Disable the default close action (like clicking the close button or clicking outside)
+                    no_cancel: true
+                });
+
+                // Show the dialog and freeze the background
+                d.show();
+                $('body').addClass('dialog-open');
+
+                // Set the flag in session storage to prevent showing the dialog again for this user in the same session
+                setSessionItem('dialog_shown_' + currentUser, 'true');
+            },
+        });
+    }
+});
+
+// Clear the session storage on logout
+$(document).on('logout', function() {
+    sessionStorage.clear();
+});
+
+// CSS to freeze the background and prevent clicks outside the dialog
+$('<style>')
+    .prop('type', 'text/css')
+    .html(`
+    .dialog-open {
+        overflow: hidden;
+    }
+    .dialog-open .page-container {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+    .modal {
+        pointer-events: auto;
+    }
+    .modal-dialog {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .modal-header, .modal-footer {
+        border: none;
+    }
+    .modal-header {
+        border-bottom: 1px solid #eee;
+    }
+    .modal-footer {
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+    }
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+`).appendTo('head');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// -------------------------------------------------- permisssioj 
+
+
+
+$(document).ready(function() {
+    // Function to get a session storage item
+    function getSessionItem(name) {
+        return sessionStorage.getItem(name);
+    }
+
+    // Function to set a session storage item
+    function setSessionItem(name, value) {
+        sessionStorage.setItem(name, value);
+    }
+
+    // Clear session storage on logout
+    function clearSessionItems() {
+        sessionStorage.clear();
+    }
+
+    // Get the current user
+    let currentUser = frappe.session.user;
+
+    // Clear the session storage if the current user changes
+    if (!getSessionItem('current_user') || getSessionItem('current_user') !== currentUser) {
+        clearSessionItems();
+        setSessionItem('current_user', currentUser);
+    }
+
+    // Check if the dialog has already been shown for the current user in this session
+    if (currentUser !== "Administrator" && !getSessionItem('dialog_shown_' + currentUser)) {
+        let fields = [];
+
+        // Add company selection field
+        fields.push({
+            fieldname: 'company',
+            fieldtype: 'Link',
+            options: 'Company',
+            label: __('Select Company'),
+            reqd: 1
+        });
+
+        // Add checkbox to fields
+        fields.push({
+            fieldname: 'auto_permission',
+            fieldtype: 'Check',
+            label: __('Auto Permission')
+        });
+
+        let perms = frappe.perm.get_perm("Session Default Settings");
+        // Add settings button only if user is a System Manager or has permission on 'Session Default Settings'
+        if (frappe.user_roles.includes("System Manager") || perms[0].read == 1) {
+            fields.push({
+                fieldname: "settings",
+                fieldtype: "Button",
+                label: __("Settings"),
+                click: () => {
+                    frappe.set_route(
+                        "Form",
+                        "Session Default Settings",
+                        "Session Default Settings"
+                    );
+                },
+            });
+        }
+
+        // Create a dialog
+        let d = new frappe.ui.Dialog({
+            title: __("Select Company"),
+            fields: fields,
+            primary_action_label: __("Save"),
+            primary_action(values) {
+                // If default is not set for a particular field in prompt
+                fields.forEach(function (d) {
+                    if (!values[d.fieldname]) {
+                        values[d.fieldname] = "";
+                    }
+                });
+
+                // Call server-side function if the checkbox is checked
+                if (values.auto_permission) {
+                    frappe.call({
+                        method: 'enpossibilities.api.manage_company_permissions',
+                        args: {
+                            user: currentUser,
+                            company: values.company,
+                            enable: 1
+                        },
+                        callback: function(r) {
+                            if (r.message === "success") {
+                                frappe.show_alert({
+                                    message: __("Permissions Updated"),
+                                    indicator: "green"
+                                });
+                            } else {
+                                frappe.show_alert({
+                                    message: __("Error Updating Permissions"),
+                                    indicator: "red"
+                                });
+                            }
+                        }
+                    });
+                }
+
+                frappe.call({
+                    method: "frappe.core.doctype.session_default_settings.session_default_settings.set_session_default_values",
+                    args: {
+                        default_values: values,
+                    },
+                    callback: function (data) {
+                        if (data.message == "success") {
+                            frappe.show_alert({
+                                message: __("Session Defaults Saved"),
+                                indicator: "green",
+                            });
+                            frappe.ui.toolbar.clear_cache();
+                        } else {
+                            frappe.show_alert({
+                                message: __("An error occurred while setting Session Defaults"),
+                                indicator: "red",
+                            });
+                        }
+                        d.hide();
+                        $('body').removeClass('dialog-open');
+                    },
+                });
+            },
+            // Disable the default close action (like clicking the close button or clicking outside)
+            no_cancel: true
+        });
+
+        // Show the dialog and freeze the background
+        d.show();
+        $('body').addClass('dialog-open');
+
+        // Set the flag in session storage to prevent showing the dialog again for this user in the same session
+        setSessionItem('dialog_shown_' + currentUser, 'true');
+    }
+});
+
+// Clear the session storage on logout
+$(document).on('logout', function() {
+    let currentUser = frappe.session.user;
+    frappe.call({
+        method: 'enpossibilities.api.remove_all_company_permissions',
+        args: {
+            user: currentUser
+        },
+        callback: function(r) {
+            if (r.message === "success") {
+                frappe.show_alert({
+                    message: __("Permissions Removed"),
+                    indicator: "green"
+                });
+            } else {
+                frappe.show_alert({
+                    message: __("Error Removing Permissions"),
+                    indicator: "red"
+                });
+            }
+            sessionStorage.clear();
+        }
+    });
+});
+
+// CSS to freeze the background and prevent clicks outside the dialog
+$('<style>')
+    .prop('type', 'text/css')
+    .html(`
+    .dialog-open {
+        overflow: hidden;
+    }
+    .dialog-open .page-container {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+    .modal {
+        pointer-events: auto;
+    }
+    .modal-dialog {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .modal-header, .modal-footer {
+        border: none;
+    }
+    .modal-header {
+        border-bottom: 1px solid #eee;
+    }
+    .modal-footer {
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+    }
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+`).appendTo('head');
