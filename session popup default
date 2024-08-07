@@ -1,3 +1,5 @@
+ app_include_js = "/assets/enpossibilities/login.js"
+
 // $(document).on('app_ready', function() {
 //     // Function to get a cookie by name
 //     function getCookie(name) {
