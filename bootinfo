@@ -1,0 +1,78 @@
+
+
+import frappe
+
+def boot_session(bootinfo):
+    user = frappe.session.user
+    if user != 'Guest':
+       
+        bootinfo.default_popup = 1
+    else:
+        bootinfo.default_popup = 0
+
+
+
+
+
+
+from frappe import _
+
+@frappe.whitelist(allow_guest=True)
+def logout(user):
+    a = frappe.db.sql("""select *from `tabUser` where name=%s""", user)
+    if not a:
+        return "user not exist"
+    
+    clear_sessions(user, keep_current=False, device='desktop', force=True)
+    return _("Logged out successfully")
+
+
+
+
+from frappe.permissions import (
+	add_user_permission,
+	remove_user_permission,
+)
+
+
+
+@frappe.whitelist()
+def manage_company_permissions(user, company, enable):
+    if enable:
+        if not frappe.db.exists("User Permission", {"allow": "Company", "for_value": company, "user": user}):
+            add_user_permission("Company", company, user)
+    else:
+        user_per = frappe.db.get_value("User Permission", {"allow": "Company", "for_value": company, "user": user}, "name")
+        if user_per:
+            frappe.delete_doc("User Permission", user_per)
+
+@frappe.whitelist()
+def remove_all_company_permissions(user):
+    permissions = frappe.get_all("User Permission", filters={"allow": "Company", "user": user})
+    for perm in permissions:
+        frappe.delete_doc("User Permission", perm.name)
+
+
+
+
+
+
+
+---------------------------hooks
+
+
+app_include_js = "/assets/enpossibilities/login.js"
+
+boot_session = "enpossibilities.api.boot_session"
+
+
+
+
+
+override_whitelisted_methods = {
+    "frappe.handler.logout": "enpossibilities.api.logout"
+}
+
+
+
+
