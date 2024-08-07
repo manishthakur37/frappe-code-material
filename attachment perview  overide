@@ -69,3 +69,39 @@ frappe.ui.form.Attachments = class CustomAttachments extends frappe.ui.form.Atta
         preview_modal.show();
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Custom Attachments Preview in Frappe
+
+This custom modification changes the attachment behavior in Frappe to display a preview of the attachment in a popup dialog instead of opening it in a new tab. The customization is applied globally to all doctypes.
+
+## Installation
+
+Follow these steps to implement the custom attachment behavior in your Frappe app:
+
+### 1. Create a Custom App (if not already created)
+
+If you haven't created a custom app, run the following commands:
+
+```bash
+bench new-app custom_app
+bench --site your-site-name install-app custom_app
+
