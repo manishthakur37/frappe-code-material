@@ -1,0 +1,71 @@
+frappe.ui.form.Attachments = class CustomAttachments extends frappe.ui.form.Attachments {
+    add_attachment(attachment) {
+        var file_name = attachment.file_name;
+        var file_url = this.get_file_url(attachment);
+        var fileid = attachment.name;
+        if (!file_name) {
+            file_name = file_url;
+        }
+
+        var me = this;
+
+        let file_label = `
+            <a href="#" data-file-url="${file_url}" title="${frappe.utils.escape_html(file_name)}"
+                class="ellipsis attachment-preview-link" style="max-width: calc(100% - 43px);"
+            >
+                <span>${file_name}</span>
+            </a>`;
+
+        let remove_action = null;
+        if (frappe.model.can_write(this.frm.doctype, this.frm.name)) {
+            remove_action = function (target_id) {
+                frappe.confirm(__("Are you sure you want to delete the attachment?"), function () {
+                    let target_attachment = me
+                        .get_attachments()
+                        .find((attachment) => attachment.name === target_id);
+                    let to_be_removed = me
+                        .get_attachments()
+                        .filter(
+                            (attachment) => attachment.file_name === target_attachment.file_name
+                        );
+                    to_be_removed.forEach((attachment) => me.remove_attachment(attachment.name));
+                });
+                return false;
+            };
+        }
+
+        const icon = `<a href="/app/file/${fileid}">
+                ${frappe.utils.icon(attachment.is_private ? "es-line-lock" : "es-line-unlock", "sm ml-0")}
+            </a>`;
+
+        $(`<li class="attachment-row">`)
+            .append(frappe.get_data_pill(file_label, fileid, remove_action, icon))
+            .insertAfter(this.add_attachment_wrapper);
+
+        this.setup_attachment_preview();
+    }
+
+    setup_attachment_preview() {
+        this.parent.find(".attachment-preview-link").off("click").on("click", (e) => {
+            e.preventDefault();
+            let file_url = $(e.currentTarget).data("file-url");
+            this.show_preview(file_url);
+        });
+    }
+
+    show_preview(file_url) {
+        let me = this;
+        let preview_modal = new frappe.ui.Dialog({
+            title: __("Attachment Preview"),
+            width: 800,
+            no_cancel: true
+        });
+
+        let preview_content = `
+            <div style="text-align: center;">
+                <iframe src="${file_url}" frameborder="0" style="width: 100%; height: 600px;"></iframe>
+            </div>`;
+        preview_modal.$body.html(preview_content);
+        preview_modal.show();
+    }
+};
