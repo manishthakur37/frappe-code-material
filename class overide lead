@@ -1,0 +1,34 @@
+from frappe.contacts.doctype.lead.lead import Lead
+import frappe
+from frappe import _
+
+class CustomLead(Lead):
+    def validate(self):
+        # Override the validate method
+        super(CustomLead, self).validate()
+
+        # Call the overridden check_email_id_is_unique method
+        self.check_email_id_is_unique()
+
+    def check_email_id_is_unique(self):
+        # Custom logic for checking unique email ID
+        if frappe.db.exists("Lead", {"email_id": self.email_id, "name": ["!=", self.name]}):
+            frappe.throw(_("Email ID must be unique, this one already exists: {0}").format(self.email_id))
+        
+        # Add any other custom logic if needed
+
+# Override the existing Lead class with the custom one
+def override_lead_class():
+    Lead = CustomLead
+
+
+
+
+
+
+;; hooks---------------------------------
+
+
+override_doctype_class = {
+    "Lead": "your_custom_app.your_custom_app.doctype.lead.lead.CustomLead"
+}
