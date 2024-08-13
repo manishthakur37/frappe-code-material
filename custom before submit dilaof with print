@@ -1,0 +1,67 @@
+// frappe.ui.form.on('Purchase Receipt', {
+
+//     before_submit: async (frm) => {
+//         let prompt = new Promise((resolve, reject) => {
+//             frappe.confirm(
+//                 'Are you sure?',
+//                 () => resolve(),
+//                 () => reject()
+//             );
+//         });
+//         await prompt.then(
+//             () => frappe.show_alert("Submitted", 3), 
+//             () => {
+//                 frappe.validated = false;
+//                 frappe.show_alert("Not submitted", 3)
+//             }
+//         );
+//     }
+// })
+
+
+
+
+frappe.ui.form.on('Purchase Receipt', {
+    before_submit: async (frm) => {
+        let dialog = new frappe.ui.Dialog({
+            title: 'Confirm Submission',
+            fields: [
+                {
+                    label: 'Are you sure you want to submit this document?',
+                    fieldname: 'confirmation_message',
+                    fieldtype: 'HTML',
+                    options: `<p>Are you sure you want to submit this document?</p>`,
+                }
+            ],
+            primary_action_label: 'Submit',
+            primary_action: function() {
+                dialog.hide();
+                frappe.show_alert("Submitted", 3);
+                frm.save_or_update(); // Proceed with submission
+            },
+            secondary_action_label: 'Cancel',
+            secondary_action: function() {
+                dialog.hide();
+                frappe.validated = false;
+                frappe.show_alert("Not submitted", 3);
+            }
+        });
+
+        dialog.show();
+
+        // Adding custom buttons for silent printing
+        let silent_print_button = $('<button class="btn btn-secondary btn-sm" style="margin-right: 10px;">Silent Print</button>');
+        silent_print_button.click(function() {
+            dialog.hide();
+            frappe.validated = false;
+            printSilently(); // Attempt to print directly
+        });
+        dialog.$wrapper.find('.modal-footer .btn-secondary').before(silent_print_button);
+    }
+});
+
+// Function to attempt silent printing
+function printSilently() {
+    // Set up your page or iframe for printing here
+    window.print(); // This will still show the print dialog in most cases
+}
