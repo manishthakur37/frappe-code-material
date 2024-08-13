@@ -1,0 +1,64 @@
+import io
+import os
+import frappe
+from frappe.utils import get_url
+from pyqrcode import create as qr_create
+
+def create_qr_code(doc, method=None):
+    try:
+        # Define the print format
+        print_format = 'Standard'
+        
+        # Generate the URL for the QR code
+        link = f"{get_url(doc.doctype)}/{doc.name}?format={print_format}&key={doc.get_signature()}"
+        
+        # Create QR code
+        qr_image = io.BytesIO()
+        qr_code = qr_create(link, error='L')
+        qr_code.png(qr_image, scale=2, quiet_zone=1)
+        
+        # Generate a unique filename
+        name = frappe.generate_hash(doc.name, 5)
+        filename = f"QRCode-{name}.png".replace(os.path.sep, "__")
+        
+        # Create a File document
+        _file = frappe.get_doc({
+            "doctype": "File",
+            "file_name": filename,
+            "attached_to_doctype": doc.doctype,
+            "attached_to_name": doc.name,
+            "attached_to_field": "custom_qr_code",
+            "is_private": 0,
+            "content": qr_image.getvalue()
+        })
+        _file.save()
+        
+        # Update the document with the file URL
+        doc.db_set('custom_qr_code', _file.file_url)
+        
+        frappe.msgprint(f"QR Code successfully generated and attached to {doc.doctype} - {doc.name}.")
+    
+    except Exception as e:
+        # Log the error
+        frappe.log_error(message=str(e), title="QR Code Generation Error")
+        frappe.msgprint(f"An error occurred while generating the QR Code: {str(e)}")
+
+
+
+
+
+
+# hooks.py
+doc_events = {
+    "*": {
+        "on_submit": "my_app.path.to.your_function.create_qr_code"
+    }
+}
+
+
+
+
+
+
+pip install pyqrcode
+
