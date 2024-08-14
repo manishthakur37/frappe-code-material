@@ -1,0 +1,70 @@
+
+
+frappe.ui.form.on('Customer', {
+    refresh: function(frm) {
+        // Clear existing links
+        frm.sidebar.links_area.empty();
+
+        // Fetch attachments
+        frappe.call({
+            method: 'frappe.client.get_list',
+            args: {
+                doctype: 'File',
+                fields: ['file_url', 'file_name'],
+                filters: {
+                    'attached_to_doctype': frm.doctype,
+                    'attached_to_name': frm.docname
+                }
+            },
+            callback: function(r) {
+                if (r.message) {
+                    r.message.forEach(function(file) {
+                        // Create a link for each attachment
+                        let link = $(`<a href="#" data-url="${file.file_url}" class="attachment-link">${file.file_name}</a><br>`);
+                        frm.sidebar.links_area.append(link);
+                    });
+
+                    // Add click event to open the modal preview
+                    frm.sidebar.links_area.on('click', '.attachment-link', function(event) {
+                        event.preventDefault();
+                        let url = $(this).data('url');
+                        open_preview_modal(url);
+                    });
+                }
+            }
+        });
+    }
+});
+
+function open_preview_modal(url) {
+    let content;
+    if (url.match(/\.(jpeg|jpg|gif|png)$/) != null) {
+        // Image preview
+        content = `<img src="${url}" style="max-width: 100%; height: auto;">`;
+    } else if (url.match(/\.(pdf)$/) != null) {
+        // PDF preview
+        content = `<embed src="${url}" width="100%" height="500px" type="application/pdf">`;
+    } else if (url.match(/\.(mp4|webm|ogg)$/) != null) {
+        // Video preview
+        content = `<video width="100%" controls>
+                      <source src="${url}" type="video/mp4">
+                      Your browser does not support the video tag.
+                   </video>`;
+    } else {
+        // Generic file preview (link)
+        content = `<a href="${url}" target="_blank">Open file</a>`;
+    }
+
+    let modal = new frappe.ui.Dialog({
+        title: 'File Preview',
+        fields: [
+            {
+                fieldtype: 'HTML',
+                fieldname: 'preview',
+                options: `<div style="text-align: center;">${content}</div>`
+            }
+        ]
+    });
+
+    modal.show();
+}
