@@ -1,0 +1,9 @@
+frappe.ui.form.on("Sales Order", "onload", function(frm) {
+    frm.set_query("set_warehouse", function() {
+        return {
+            "filters": {
+               "custom_region" : frm.doc.territory
+            }
+        };
+    });
+});
