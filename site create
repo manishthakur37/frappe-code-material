@@ -1,0 +1,96 @@
+------------------------------------- doctype 
+Fields for the "Site Creator" Doctype
+Site Name
+
+Label: Site Name
+Field Type: Data
+Options: None
+Description: This field is where the user will enter the name of the new site to be created.
+Select App
+
+Label: Select App
+Field Type: Select
+Options: This will be dynamically populated by fetching the list of apps from the bench.
+Description: This field allows the user to select an app that should be installed on the new site.
+Create Site Button
+
+Label: Create Site
+Field Type: Button
+Options: None
+Description: This button triggers the creation of the new site with the selected app.
+
+
+
+--------------------------- js 
+frappe.ui.form.on('Site Creator', {
+    onload: function(frm) {
+        frappe.call({
+            method: 'enpossibilities.enpossibilities.api.get_bench_apps', // Adjust the path to your actual app and method
+            callback: function(r) {
+                if (r.message) {
+                    var app_list = r.message;
+                    frm.set_df_property('select_app', 'options', app_list.join('\n'));
+                }
+            }
+        });
+    },
+
+    create_site: function(frm) {
+        if (!frm.doc.site_name) {
+            frappe.msgprint(__('Please enter a site name'));
+            return;
+        }
+        
+        frappe.call({
+            method: 'enpossibilities.enpossibilities.api.create_site', // Adjust the path to your actual app and method
+            args: {
+                site_name: frm.doc.site_name,
+                app_name: frm.doc.select_app
+            },
+            callback: function(r) {
+                if (r.message === 'done') {
+                    frappe.msgprint(__('Site created successfully.'));
+                } else {
+                    frappe.msgprint(__('Failed to create site.'));
+                }
+            }
+        });
+    }
+});
+
+
+
+
+------------------------------py
+import os
+import frappe
+from frappe.utils import get_bench_path
+
+@frappe.whitelist()
+def get_bench_apps():
+    bench_path = get_bench_path()
+    apps = []
+    
+    apps_dir = os.path.join(bench_path, 'apps')
+    
+    if os.path.exists(apps_dir):
+        apps = [app for app in os.listdir(apps_dir) if os.path.isdir(os.path.join(apps_dir, app))]
+    
+    return apps
+
+
+
+
+
+
+
+@frappe.whitelist()
+def create_site(site_name, app_name=None):
+    bench_path = get_bench_path()
+    command = f"bench new-site {site_name}"
+    
+    if app_name:
+        command += f" --install-app {app_name}"
+    
+    os.system(command)
+    return 'done'
