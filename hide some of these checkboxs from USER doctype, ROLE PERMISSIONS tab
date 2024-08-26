@@ -1,0 +1,9 @@
+How to hide some of these checkboxs from USER doctype, ROLE PERMISSIONS tab?
+
+
+frappe.ui.form.on('User', {
+	refresh(frm) {
+		// your code here
+        $('div.checkbox.unit-checkbox label input[data-unit="Academics User"]').closest('div.checkbox.unit-checkbox').hide();
+	}
+})
