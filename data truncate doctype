@@ -1,0 +1,52 @@
+#---------------- crate doctype ( Doctype Truncator)
+  frappe.ui.form.on('Doctype Truncator', {
+    delete_data: function(frm) {
+        frappe.confirm(
+            'Are you sure you want to delete all data for this Doctype?',
+            function() {
+                frappe.call({
+                    method: 'frappe.client.get_value',
+                    args: {
+                        doctype: frm.doc.doctype_truncator,
+                        fieldname: 'name',
+                        limit_page_length: 1
+                    },
+                    callback: function(r) {
+                        if (r.message) {
+                            frappe.call({
+                                method: 'enpossibilities.enpossibilities.doctype.doctype_truncator.doctype_truncator.truncate_table',
+                                args: {
+                                    doctype_name: frm.doc.doctype_truncator
+                                },
+                                callback: function(response) {
+                                    frappe.msgprint(`All data in ${frm.doc.doctype_truncator} has been deleted.`);
+                                    // Clear all fields after deletion
+                                    frm.clear();
+                                    frm.refresh();
+                                }
+                            });
+                        } else {
+                            frappe.msgprint(`No data found for the selected Doctype.`);
+                        }
+                    }
+                });
+            },
+            function() {
+                frappe.msgprint('Deletion canceled.');
+            }
+        );
+    }
+});
+
+
+
+
+
+
+
+
+@frappe.whitelist()
+def truncate_table(doctype_name):
+    frappe.db.sql(f"TRUNCATE TABLE `tab{doctype_name}`")
+
+
