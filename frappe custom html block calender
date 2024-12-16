@@ -1,0 +1,187 @@
+### Documentation: Frappe Custom HTML Block Calendar
+
+This documentation describes the implementation of a custom calendar HTML block for integration into a Frappe framework application. It includes HTML, CSS, and JavaScript code for a fully functional calendar with navigable months and day-click functionality. 
+
+---
+
+### 1. **HTML Structure**
+
+```html
+<div id="custom-calendar">
+    <div id="calendar-header">
+        <button id="prev-month">&lt;</button>
+        <span id="month-year"></span>
+        <button id="next-month">&gt;</button>
+    </div>
+    <div id="calendar-days"></div>
+</div>
+```
+
+#### Explanation:
+- **`custom-calendar`**: The main container for the calendar.
+- **`calendar-header`**: Contains navigation buttons (`prev-month` and `next-month`) and displays the current month and year.
+- **`calendar-days`**: A grid container for rendering the days of the month.
+
+---
+
+### 2. **CSS Styling**
+
+```css
+#custom-calendar {
+    max-width: 100%;
+    margin: auto;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+#calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-day {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.calendar-day.today {
+    background-color: #f0f8ff;
+    font-weight: bold;
+}
+
+.calendar-day:hover {
+    background-color: #e6f7ff;
+}
+```
+
+#### Explanation:
+- The calendar grid uses `grid-template-columns` to create a 7-column layout for the days of the week.
+- **`calendar-day.today`** highlights the current date.
+- Hover effects enhance interactivity.
+
+---
+
+### 3. **JavaScript Functionality**
+
+```javascript
+// Get calendar elements
+const daysContainer = root_element.querySelector("#calendar-days");
+const monthYearDisplay = root_element.querySelector("#month-year");
+const prevButton = root_element.querySelector("#prev-month");
+const nextButton = root_element.querySelector("#next-month");
+
+let currentDate = new Date();
+
+// Render the calendar
+function renderCalendar(date) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const today = new Date();
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    monthYearDisplay.textContent = `${date.toLocaleString("default", {
+        month: "long",
+    })} ${year}`;
+
+    daysContainer.innerHTML = "";
+
+    for (let i = 0; i < firstDay; i++) {
+        const blankDay = document.createElement("div");
+        blankDay.classList.add("calendar-day");
+        blankDay.style.visibility = "hidden"; // Hide blank days
+        daysContainer.appendChild(blankDay);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayElement = document.createElement("div");
+        dayElement.classList.add("calendar-day");
+        if (
+            today.getDate() === day &&
+            today.getMonth() === month &&
+            today.getFullYear() === year
+        ) {
+            dayElement.classList.add("today");
+        }
+        dayElement.textContent = day;
+        dayElement.addEventListener("click", () =>
+            alert(`You clicked on ${day}-${month + 1}-${year}`)
+        );
+        daysContainer.appendChild(dayElement);
+    }
+}
+
+// Change month
+function changeMonth(offset) {
+    currentDate.setMonth(currentDate.getMonth() + offset);
+    renderCalendar(currentDate);
+}
+
+// Event listeners
+prevButton.addEventListener("click", () => changeMonth(-1));
+nextButton.addEventListener("click", () => changeMonth(1));
+
+// Initial render
+renderCalendar(currentDate);
+```
+
+#### Explanation:
+1. **Initialization**:
+   - `currentDate`: Tracks the currently displayed month.
+   - Event listeners are added to the navigation buttons.
+
+2. **`renderCalendar` Function**:
+   - Clears existing calendar days.
+   - Populates the calendar grid with days of the month.
+   - Adds a `today` highlight if the date matches the current date.
+   - Adds click listeners to day elements to handle user interaction.
+
+3. **`changeMonth` Function**:
+   - Updates the `currentDate` to the next or previous month and re-renders the calendar.
+
+---
+
+### 4. **Integration with Frappe**
+
+To use this calendar in a Frappe app:
+1. **HTML Block**:
+   Add the HTML code to a Custom HTML Block in the desired Doctype or Page.
+   
+2. **CSS**:
+   Include the CSS styles in the **Custom CSS** section or a linked CSS file.
+
+3. **JavaScript**:
+   Add the JavaScript to the **Custom Script** section of the Doctype/Page using the `frappe.ui.form.on` method:
+   
+```javascript
+frappe.ui.form.on("Your Doctype", {
+    onload: function (frm) {
+        const root_element = frm.fields_dict["custom_html_fieldname"].wrapper;
+        // Include your JavaScript functionality here
+    },
+});
+```
+
+4. **Dynamic Updates**:
+   Replace `root_element` in the JavaScript with the DOM element of the calendar in the Frappe app.
+
+---
+
+### 5. **Features**
+- Interactive navigation between months.
+- Highlights the current date.
+- Handles user interactions with day elements (e.g., alerts).
+
+This calendar is modular, visually appealing, and customizable, making it a great addition to your Frappe app.
