@@ -1,0 +1,31 @@
+frappe.listview_settings['Sales Order'] = {
+    onload: function(listview) {
+        listview.page.add_inner_button('Release Sales Order', () => {
+            frappe.prompt([
+                {
+                    label: 'Sales Order Name',
+                    fieldname: 'sales_order_name',
+                    fieldtype: 'Data',
+                    reqd: 1
+                }
+            ], (values) => {
+                release_sales_order(values.sales_order_name);
+            }, 'Release Sales Order', 'Submit');
+        });
+    }
+};
+
+function release_sales_order(sales_order_name) {
+    frappe.call({
+        method: "avon_erp.customisations.custom_sales_order.release_sales_order",
+        args: {
+            name: sales_order_name
+        },
+        callback: function(r) {
+            if (r.message) {
+                frappe.msgprint("Sales Order Released from Credit Check Window");
+                frappe.listview.refresh();  // Reloads the list view
+            }
+        }
+    });
+}
