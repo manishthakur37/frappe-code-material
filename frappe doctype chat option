@@ -1,0 +1,1684 @@
+// // frappe.ui.form.on('Item', {
+// //     refresh: function(frm) {
+// //         // Check if the user is the assigned user
+// //         // if (frm.doc.assigned_to == frappe.session.user) {
+// //             // Add a custom section for chat
+// //             frm.add_custom_button('Chat', () => {
+// //                 open_chat_dialog(frm);
+// //             });
+// //         // }
+// //     }
+// // });
+
+// // function open_chat_dialog(frm) {
+// //     frappe.call({
+// //         method: 'frappe.client.get_list',
+// //         args: {
+// //             doctype: 'Item Chat',
+// //             filters: { 'item_reference': frm.doc.name },
+// //             fields: ['name', 'message', 'posted_by', 'timestamp'],
+// //             order_by: 'timestamp asc'
+// //         },
+// //         callback: function(response) {
+// //             const chat_dialog = new frappe.ui.Dialog({
+// //                 title: 'Item Chat',
+// //                 fields: [
+// //                     {
+// //                         fieldname: 'chat_display',
+// //                         fieldtype: 'HTML'
+// //                     },
+// //                     {
+// //                         fieldname: 'new_message',
+// //                         label: 'New Message',
+// //                         fieldtype: 'Small Text'
+// //                     }
+// //                 ],
+// //                 primary_action_label: 'Send',
+// //                 primary_action(values) {
+// //                     if (values.new_message) {
+// //                         frappe.call({
+// //                             method: 'frappe.client.insert',
+// //                             args: {
+// //                                 doc: {
+// //                                     doctype: 'Item Chat',
+// //                                     item_reference: frm.doc.name,
+// //                                     message: values.new_message,
+// //                                     posted_by: frappe.session.user
+// //                                 }
+// //                             },
+// //                             callback: function() {
+// //                                 frappe.msgprint('Message sent!');
+// //                                 chat_dialog.hide();
+// //                                 frm.reload_doc();
+// //                             }
+// //                         });
+// //                     }
+// //                 }
+// //             });
+
+// //             // Display existing messages
+// //             let chat_html = "<div style='max-height: 300px; overflow-y: auto;'>";
+// //             response.message.forEach(msg => {
+// //                 chat_html += `<p><strong>${msg.posted_by}:</strong> ${msg.message} <br><small>${msg.timestamp}</small></p>`;
+// //             });
+// //             chat_html += "</div>";
+
+// //             chat_dialog.fields_dict.chat_display.$wrapper.html(chat_html);
+// //             chat_dialog.show();
+// //         }
+// //     });
+// // }
+// // frappe.ui.form.on('Item', {
+// //     refresh: function(frm) {
+// //         // Check if the user is the assigned user
+// //         if (frm.doc.assigned_to == frappe.session.user) {
+// //             // Add a custom section for chat
+// //             frm.add_custom_button('Chat', () => {
+// //                 open_chat_dialog(frm);
+// //             });
+// //         }
+// //     }
+// // });
+
+// // function open_chat_dialog(frm) {
+// //     frappe.call({
+// //         method: 'frappe.client.get_list',
+// //         args: {
+// //             doctype: 'Item Chat',
+// //             filters: { 'item_reference': frm.doc.name },
+// //             fields: ['name', 'message', 'posted_by', 'timestamp'],
+// //             order_by: 'timestamp asc'
+// //         },
+// //         callback: function(response) {
+// //             const chat_dialog = new frappe.ui.Dialog({
+// //                 title: 'Item Chat',
+// //                 fields: [
+// //                     {
+// //                         fieldname: 'chat_display',
+// //                         fieldtype: 'HTML'
+// //                     },
+// //                     {
+// //                         fieldname: 'new_message',
+// //                         label: 'New Message',
+// //                         fieldtype: 'Small Text'
+// //                     }
+// //                 ],
+// //                 primary_action_label: 'Send',
+// //                 primary_action(values) {
+// //                     if (values.new_message) {
+// //                         frappe.call({
+// //                             method: 'frappe.client.insert',
+// //                             args: {
+// //                                 doc: {
+// //                                     doctype: 'Item Chat',
+// //                                     item_reference: frm.doc.name,
+// //                                     message: values.new_message,
+// //                                     posted_by: frappe.session.user
+// //                                 }
+// //                             },
+// //                             callback: function() {
+// //                                 frappe.msgprint('Message sent!');
+// //                                 chat_dialog.hide();
+// //                                 frm.reload_doc();
+// //                             }
+// //                         });
+// //                     }
+// //                 }
+// //             });
+
+// //             // Display existing messages
+// //             let chat_html = "<div style='max-height: 300px; overflow-y: auto;'>";
+// //             response.message.forEach(msg => {
+// //                 chat_html += `<p><strong>${msg.posted_by}:</strong> ${msg.message} <br><small>${msg.timestamp}</small></p>`;
+// //             });
+// //             chat_html += "</div>";
+
+// //             chat_dialog.fields_dict.chat_display.$wrapper.html(chat_html);
+// //             chat_dialog.show();
+// //         }
+// //     });
+// // }
+
+
+
+
+
+
+// frappe.ui.form.on('Item', {
+//     refresh: function(frm) {
+//         // Add Chat button
+//         frm.add_custom_button('Chat', () => {
+//             open_chat_dialog(frm);
+//         });
+//     }
+// });
+
+// function open_chat_dialog(frm) {
+//     // If dialog already exists, just show it
+//     if (frm.page.chat_dialog) {
+//         frm.page.chat_dialog.show();
+//         return;
+//     }
+
+//     // Create a new chat dialog
+//     frm.page.chat_dialog = new frappe.ui.Dialog({
+//         title: 'Item Chat',
+//         fields: [
+//             {
+//                 fieldname: 'chat_display',
+//                 fieldtype: 'HTML'
+//             },
+//             {
+//                 fieldname: 'new_message',
+//                 label: 'New Message',
+//                 fieldtype: 'Small Text'
+//             }
+//         ],
+//         primary_action_label: 'Send',
+//         primary_action(values) {
+//             if (values.new_message) {
+//                 frappe.call({
+//                     method: 'frappe.client.insert',
+//                     args: {
+//                         doc: {
+//                             doctype: 'Item Chat',
+//                             item_reference: frm.doc.name,
+//                             message: values.new_message,
+//                             posted_by: frappe.session.user
+//                         }
+//                     },
+//                     callback: function() {
+//                         frappe.msgprint('Message sent!');
+//                         frm.page.chat_dialog.fields_dict.new_message.set_value('');
+//                         load_chat_messages(frm); // Reload chat messages
+//                     }
+//                 });
+//             }
+//         }
+//     });
+
+//     // Load existing messages
+//     load_chat_messages(frm);
+
+//     // Show the dialog
+//     frm.page.chat_dialog.show();
+// }
+
+// function load_chat_messages(frm) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'Item Chat',
+//             filters: { 'item_reference': frm.doc.name },
+//             fields: ['message', 'posted_by', 'timestamp'],
+//             order_by: 'timestamp asc'
+//         },
+//         callback: function(response) {
+//             let chat_html = "<div style='max-height: 300px; overflow-y: auto;'>";
+//             response.message.forEach(msg => {
+//                 chat_html += `
+//                     <div style="border-bottom: 1px solid #eaeaea; padding: 5px 0;">
+//                         <strong>${msg.posted_by}:</strong> ${msg.message} 
+//                         <br><small>${msg.timestamp}</small>
+//                     </div>`;
+//             });
+//             chat_html += "</div>";
+
+//             frm.page.chat_dialog.fields_dict.chat_display.$wrapper.html(chat_html);
+//             frm.page.chat_dialog.fields_dict.chat_display.$wrapper.scrollTop(
+//                 frm.page.chat_dialog.fields_dict.chat_display.$wrapper[0].scrollHeight
+//             );
+//         }
+//     });
+// }
+
+
+
+
+// frappe.ui.form.on('Item', {
+//     refresh: function(frm) {
+//         frm.add_custom_button('Chat', () => {
+//             open_chat_dialog(frm);
+//         });
+//     }
+// });
+
+// function open_chat_dialog(frm) {
+//     // If dialog already exists, just show it
+//     if (frm.page.chat_dialog) {
+//         frm.page.chat_dialog.show();
+//         return;
+//     }
+
+//     // Create a new chat dialog
+//     frm.page.chat_dialog = new frappe.ui.Dialog({
+//         title: 'Item Chat',
+//         fields: [
+//             {
+//                 fieldname: 'chat_display',
+//                 fieldtype: 'HTML'
+//             },
+//             {
+//                 fieldname: 'new_message',
+//                 label: 'New Message',
+//                 fieldtype: 'Small Text'
+//             }
+//         ],
+//         primary_action_label: 'Send',
+//         primary_action(values) {
+//             if (values.new_message) {
+//                 frappe.call({
+//                     method: 'frappe.client.insert',
+//                     args: {
+//                         doc: {
+//                             doctype: 'Item Chat',
+//                             item_reference: frm.doc.name,
+//                             message: values.new_message,
+//                             posted_by: frappe.session.user
+//                         }
+//                     },
+//                     callback: function() {
+//                         frappe.msgprint('Message sent!');
+//                         frm.page.chat_dialog.fields_dict.new_message.set_value('');
+//                         localStorage.removeItem(`draft_message_${frm.doc.name}`); // Clear draft
+//                         load_chat_messages(frm); // Reload chat messages
+//                     }
+//                 });
+//             }
+//         }
+//     });
+
+//     // Load existing messages
+//     load_chat_messages(frm);
+
+//     // Load draft message if it exists
+//     const draft = localStorage.getItem(`draft_message_${frm.doc.name}`);
+//     if (draft) {
+//         frm.page.chat_dialog.fields_dict.new_message.set_value(draft);
+//     }
+
+//     // Save draft on input change
+//     frm.page.chat_dialog.fields_dict.new_message.$input.on('input', function() {
+//         const message = $(this).val();
+//         localStorage.setItem(`draft_message_${frm.doc.name}`, message);
+//     });
+
+//     // Show the dialog
+//     frm.page.chat_dialog.show();
+// }
+
+// function load_chat_messages(frm) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'Item Chat',
+//             filters: { 'item_reference': frm.doc.name },
+//             fields: ['message', 'posted_by', 'timestamp'],
+//             order_by: 'timestamp asc'
+//         },
+//         callback: function(response) {
+//             let chat_html = "<div style='max-height: 300px; overflow-y: auto;'>";
+//             response.message.forEach(msg => {
+//                 chat_html += `
+//                     <div style="border-bottom: 1px solid #eaeaea; padding: 5px 0;">
+//                         <strong>${msg.posted_by}:</strong> ${msg.message} 
+//                         <br><small>${msg.timestamp}</small>
+//                     </div>`;
+//             });
+//             chat_html += "</div>";
+
+//             frm.page.chat_dialog.fields_dict.chat_display.$wrapper.html(chat_html);
+//             frm.page.chat_dialog.fields_dict.chat_display.$wrapper.scrollTop(
+//                 frm.page.chat_dialog.fields_dict.chat_display.$wrapper[0].scrollHeight
+//             );
+//         }
+//     });
+// }
+
+
+
+
+
+
+
+// frappe.ui.form.on('Item', {
+//     refresh: function(frm) {
+//         // Add Chat button
+//         frm.add_custom_button('Chat', () => {
+//             open_chat_dialog(frm);
+//         });
+//     },
+//     onload: function(frm) {
+//         // Clear previous chat dialog when a new item is opened
+//         if (frm.page.chat_dialog) {
+//             frm.page.chat_dialog.hide();
+//             frm.page.chat_dialog = null;
+//         }
+//     }
+// });
+
+// function open_chat_dialog(frm) {
+//     // If dialog already exists, just show it
+//     if (frm.page.chat_dialog) {
+//         frm.page.chat_dialog.show();
+//         return;
+//     }
+
+//     // Create a new chat dialog
+//     frm.page.chat_dialog = new frappe.ui.Dialog({
+//         title: 'Item Chat - ' + frm.doc.name,  // Display current Item name
+//         fields: [
+//             {
+//                 fieldname: 'chat_display',
+//                 fieldtype: 'HTML'
+//             },
+//             {
+//                 fieldname: 'new_message',
+//                 label: 'New Message',
+//                 fieldtype: 'Small Text'
+//             }
+//         ],
+//         primary_action_label: 'Send',
+//         primary_action(values) {
+//             if (values.new_message) {
+//                 frappe.call({
+//                     method: 'frappe.client.insert',
+//                     args: {
+//                         doc: {
+//                             doctype: 'Item Chat',
+//                             item_reference: frm.doc.name,  // Save message for current Item
+//                             message: values.new_message,
+//                             posted_by: frappe.session.user
+//                         }
+//                     },
+//                     callback: function() {
+//                         frappe.msgprint('Message sent!');
+//                         frm.page.chat_dialog.fields_dict.new_message.set_value('');
+//                         localStorage.removeItem(`draft_message_${frm.doc.name}`); // Clear draft for this Item
+//                         load_chat_messages(frm); // Reload chat messages
+//                     }
+//                 });
+//             }
+//         }
+//     });
+
+//     // Load existing messages specific to the current Item
+//     load_chat_messages(frm);
+
+//     // Load draft message if it exists for this Item
+//     const draft = localStorage.getItem(`draft_message_${frm.doc.name}`);
+//     if (draft) {
+//         frm.page.chat_dialog.fields_dict.new_message.set_value(draft);
+//     }
+
+//     // Save draft on input change
+//     frm.page.chat_dialog.fields_dict.new_message.$input.on('input', function() {
+//         const message = $(this).val();
+//         localStorage.setItem(`draft_message_${frm.doc.name}`, message);
+//     });
+
+//     // Show the dialog
+//     frm.page.chat_dialog.show();
+// }
+
+// function load_chat_messages(frm) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'Item Chat',
+//             filters: { 'item_reference': frm.doc.name },  // Filter messages for current Item only
+//             fields: ['message', 'posted_by', 'timestamp'],
+//             order_by: 'timestamp asc'
+//         },
+//         callback: function(response) {
+//             let chat_html = "<div style='max-height: 300px; overflow-y: auto;'>";
+//             response.message.forEach(msg => {
+//                 chat_html += `
+//                     <div style="border-bottom: 1px solid #eaeaea; padding: 5px 0;">
+//                         <strong>${msg.posted_by}:</strong> ${msg.message} 
+//                         <br><small>${msg.timestamp}</small>
+//                     </div>`;
+//             });
+//             chat_html += "</div>";
+
+//             frm.page.chat_dialog.fields_dict.chat_display.$wrapper.html(chat_html);
+//             frm.page.chat_dialog.fields_dict.chat_display.$wrapper.scrollTop(
+//                 frm.page.chat_dialog.fields_dict.chat_display.$wrapper[0].scrollHeight
+//             );
+//         }
+//     });
+// }
+
+
+
+
+
+
+// frappe.ui.form.on('task', {
+//     refresh: function(frm) {
+//         // Add Chat button
+//         frm.add_custom_button('Chat', () => {
+//             open_chat_dialog(frm);
+//         });
+//     },
+//     onload: function(frm) {
+//         // Clear previous chat dialog when a new item is opened
+//         if (frm.page.chat_dialog) {
+//             frm.page.chat_dialog.hide();
+//             frm.page.chat_dialog = null;
+//         }
+//     }
+// });
+
+// function open_chat_dialog(frm) {
+//     // If dialog already exists, just show it
+//     if (frm.page.chat_dialog) {
+//         frm.page.chat_dialog.show();
+//         return;
+//     }
+
+//     // Create a new chat dialog
+//     frm.page.chat_dialog = new frappe.ui.Dialog({
+//         title: 'Item Chat - ' + frm.doc.name,  // Display current Item name
+//         fields: [
+//             {
+//                 fieldname: 'chat_display',
+//                 fieldtype: 'HTML'
+//             },
+//             {
+//                 fieldname: 'new_message',
+//                 label: 'New Message',
+//                 fieldtype: 'Small Text'
+//             }
+//         ],
+//         primary_action_label: 'Send',
+//         primary_action(values) {
+//             if (values.new_message) {
+//                 frappe.call({
+//                     method: 'frappe.client.insert',
+//                     args: {
+//                         doc: {
+//                             doctype: 'Item Chat',
+//                             item_reference: frm.doc.name,  // Save message for current Item
+//                             message: values.new_message,
+//                             posted_by: frappe.session.user
+//                         }
+//                     },
+//                     callback: function() {
+//                         frappe.msgprint('Message sent!');
+//                         frm.page.chat_dialog.fields_dict.new_message.set_value('');
+//                         localStorage.removeItem(`draft_message_${frm.doc.name}`); // Clear draft for this Item
+//                         load_chat_messages(frm); // Reload chat messages
+
+//                         // Call the email function after message is sent
+//                         send_email_to_assigned_users(frm, values.new_message);
+//                     }
+//                 });
+//             }
+//         }
+//     });
+
+//     // Load existing messages specific to the current Item
+//     load_chat_messages(frm);
+
+//     // Load draft message if it exists for this Item
+//     const draft = localStorage.getItem(`draft_message_${frm.doc.name}`);
+//     if (draft) {
+//         frm.page.chat_dialog.fields_dict.new_message.set_value(draft);
+//     }
+
+//     // Save draft on input change
+//     frm.page.chat_dialog.fields_dict.new_message.$input.on('input', function() {
+//         const message = $(this).val();
+//         localStorage.setItem(`draft_message_${frm.doc.name}`, message);
+//     });
+
+//     // Show the dialog
+//     frm.page.chat_dialog.show();
+// }
+
+// function load_chat_messages(frm) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'Item Chat',
+//             filters: { 'item_reference': frm.doc.name },  // Filter messages for current Item only
+//             fields: ['message', 'posted_by', 'timestamp'],
+//             order_by: 'timestamp asc'
+//         },
+//         callback: function(response) {
+//             let chat_html = "<div style='max-height: 300px; overflow-y: auto;'>";
+//             response.message.forEach(msg => {
+//                 chat_html += `
+//                     <div style="border-bottom: 1px solid #eaeaea; padding: 5px 0;">
+//                         <strong>${msg.posted_by}:</strong> ${msg.message} 
+//                         <br><small>${msg.timestamp}</small>
+//                     </div>`;
+//             });
+//             chat_html += "</div>";
+
+//             frm.page.chat_dialog.fields_dict.chat_display.$wrapper.html(chat_html);
+//             frm.page.chat_dialog.fields_dict.chat_display.$wrapper.scrollTop(
+//                 frm.page.chat_dialog.fields_dict.chat_display.$wrapper[0].scrollHeight
+//             );
+//         }
+//     });
+// }
+
+// function send_email_to_assigned_users(frm, message) {
+//     // Get the list of assigned users
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'ToDo',
+//             filters: { 'reference_name': frm.doc.name, 'status': 'Open' },
+//             fields: ['allocated_to']
+//         },
+//         callback: function(response) {
+//             const recipients = response.message.map(user => user.allocated_to);
+//             if (recipients.length > 0) {
+//                 frappe.call({
+//                     method: 'frappe.core.doctype.communication.email.make',
+//                     args: {
+//                         recipients: recipients.join(','),
+//                         subject: 'New Chat Message for Item: ' + frm.doc.name,
+//                         content: `
+//                             <p><strong>${frappe.session.user}</strong> posted a new message:</p>
+//                             <p>${message}</p>
+//                             <hr>
+//                             <p>Item: ${frm.doc.name}</p>
+//                             <p><a href="${window.location.href}">Click here to view the Item</a></p>
+//                         `,
+//                         communication_medium: 'Email',
+//                         send_email: 1
+//                     },
+//                     callback: function() {
+//                         frappe.msgprint('Notification email sent!');
+//                     }
+//                 });
+//             }
+//         }
+//     });
+// }
+
+
+
+
+
+
+
+
+
+
+
+// frappe.ui.form.on('Task', {
+//     refresh: function(frm) {
+//         // Add Chat button
+//         frm.add_custom_button('Chat', () => {
+//             open_chat_dialog(frm);
+//         });
+//     },
+//     onload: function(frm) {
+//         // Clear previous chat dialog when a new item is opened
+//         if (frm.page.chat_dialog) {
+//             frm.page.chat_dialog.hide();
+//             frm.page.chat_dialog = null;
+//         }
+//     }
+// });
+
+// function open_chat_dialog(frm) {
+//     // If dialog already exists, just show it
+//     if (frm.page.chat_dialog) {
+//         frm.page.chat_dialog.show();
+//         return;
+//     }
+
+//     // Create a new chat dialog
+//     frm.page.chat_dialog = new frappe.ui.Dialog({
+//         title: 'Item Chat - ' + frm.doc.name,
+//         fields: [
+//             {
+//                 fieldname: 'chat_display',
+//                 fieldtype: 'HTML'
+//             },
+//             {
+//                 fieldname: 'new_message',
+//                 label: 'New Message',
+//                 fieldtype: 'Small Text'
+//             },
+//             {
+//                 fieldname: 'attachment',
+//                 label: 'Attach File',
+//                 fieldtype: 'Attach'
+//             }
+//         ],
+//         primary_action_label: 'Send',
+//         primary_action(values) {
+//             if (values.new_message || values.attachment) {
+//                 // Prepare data for new chat message
+//                 const new_chat_doc = {
+//                     doctype: 'Item Chat',
+//                     item_reference: frm.doc.name,
+//                     message: values.new_message || '',
+//                     posted_by: frappe.session.user
+//                 };
+
+//                 // If attachment is present, link it to the message
+//                 if (values.attachment) {
+//                     new_chat_doc.attachment = values.attachment;
+//                 }
+
+//                 frappe.call({
+//                     method: 'frappe.client.insert',
+//                     args: { doc: new_chat_doc },
+//                     callback: function() {
+//                         frm.page.chat_dialog.fields_dict.new_message.set_value('');
+//                         frm.page.chat_dialog.fields_dict.attachment.set_value('');
+//                         localStorage.removeItem(`draft_message_${frm.doc.name}`);
+//                         load_chat_messages(frm);
+
+//                         // Call the email function after message is sent
+//                         send_email_to_assigned_users(frm, values.new_message);
+//                     }
+//                 });
+//             }
+//         }
+//     });
+
+//     // Load existing messages specific to the current Item
+//     load_chat_messages(frm);
+
+//     // Auto-refresh chat every 5 seconds for real-time updates
+//     frm.page.chat_dialog.chat_interval = setInterval(() => {
+//         load_chat_messages(frm);
+//     }, 5000);
+
+//     // Clear interval when dialog is closed
+//     frm.page.chat_dialog.onhide = () => {
+//         clearInterval(frm.page.chat_dialog.chat_interval);
+//     };
+
+//     // Load draft message if it exists for this Item
+//     const draft = localStorage.getItem(`draft_message_${frm.doc.name}`);
+//     if (draft) {
+//         frm.page.chat_dialog.fields_dict.new_message.set_value(draft);
+//     }
+
+//     // Save draft on input change
+//     frm.page.chat_dialog.fields_dict.new_message.$input.on('input', function() {
+//         const message = $(this).val();
+//         localStorage.setItem(`draft_message_${frm.doc.name}`, message);
+//     });
+
+//     // Show the dialog
+//     frm.page.chat_dialog.show();
+// }
+
+// function load_chat_messages(frm) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'Item Chat',
+//             filters: { 'item_reference': frm.doc.name },
+//             fields: ['message', 'posted_by', 'timestamp', 'attachment'],
+//             order_by: 'timestamp asc'
+//         },
+//         callback: function(response) {
+//             let chat_html = "<div style='max-height: 300px; overflow-y: auto;' class='chat-container'>";
+//             response.message.forEach(msg => {
+//                 chat_html += `
+//                     <div style="border-bottom: 1px solid #eaeaea; padding: 5px 0;">
+//                         <strong>${msg.posted_by}:</strong> ${msg.message} 
+//                         <br><small>${msg.timestamp}</small>`;
+                
+//                 // If there's an attachment, display the download link
+//                 if (msg.attachment) {
+//                     chat_html += `<br><a href="${msg.attachment}" target="_blank" style="color: blue;">Download Attachment</a>`;
+//                 }
+
+//                 chat_html += `</div>`;
+//             });
+//             chat_html += "</div>";
+
+//             const chat_display = frm.page.chat_dialog.fields_dict.chat_display.$wrapper;
+//             chat_display.html(chat_html);
+
+//             // Scroll to the latest message
+//             chat_display.scrollTop(chat_display[0].scrollHeight);
+//         }
+//     });
+// }
+
+// function send_email_to_assigned_users(frm, message) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'ToDo',
+//             filters: { 'reference_name': frm.doc.name, 'status': 'Open' },
+//             fields: ['allocated_to']
+//         },
+//         callback: function(response) {
+//             const recipients = response.message.map(user => user.allocated_to);
+//             if (recipients.length > 0) {
+//                 frappe.call({
+//                     method: 'frappe.core.doctype.communication.email.make',
+//                     args: {
+//                         recipients: recipients.join(','),
+//                         subject: 'New Chat Message for Item: ' + frm.doc.name,
+//                         content: `
+//                             <p><strong>${frappe.session.user}</strong> posted a new message:</p>
+//                             <p>${message}</p>
+//                             <hr>
+//                             <p>Item: ${frm.doc.name}</p>
+//                             <p><a href="${window.location.href}">Click here to view the Item</a></p>
+//                         `,
+//                         communication_medium: 'Email',
+//                         send_email: 1
+//                     },
+//                     callback: function() {
+//                         frappe.msgprint('Notification email sent!');
+//                     }
+//                 });
+//             }
+//         }
+//     });
+// }
+
+
+
+
+
+
+// frappe.ui.form.on('Task', {
+//     refresh: function(frm) {
+//         // Add Chat button
+//         frm.add_custom_button('Chat', () => {
+//             open_chat_dialog(frm);
+//         });
+//     },
+//     onload: function(frm) {
+//         // Clear previous chat dialog when a new item is opened
+//         if (frm.page.chat_dialog) {
+//             frm.page.chat_dialog.hide();
+//             frm.page.chat_dialog = null;
+//         }
+//     }
+// });
+
+// function open_chat_dialog(frm) {
+//     // If dialog already exists, just show it
+//     if (frm.page.chat_dialog) {
+//         frm.page.chat_dialog.show();
+//         return;
+//     }
+
+//     // Create a new chat dialog
+//     frm.page.chat_dialog = new frappe.ui.Dialog({
+//         title: 'Item Chat - ' + frm.doc.name,
+//         fields: [
+//             {
+//                 fieldname: 'chat_display',
+//                 fieldtype: 'HTML'
+//             },
+//             {
+//                 fieldname: 'new_message',
+//                 label: 'New Message',
+//                 fieldtype: 'Small Text'
+//             },
+//             {
+//                 fieldname: 'attachment',
+//                 label: 'Attach File',
+//                 fieldtype: 'Attach'
+//             }
+//         ],
+//         primary_action_label: 'Send',
+//         primary_action(values) {
+//             if (values.new_message || values.attachment) {
+//                 // Prepare data for new chat message
+//                 const new_chat_doc = {
+//                     doctype: 'Item Chat',
+//                     item_reference: frm.doc.name,
+//                     message: values.new_message || '',
+//                     posted_by: frappe.session.user
+//                 };
+
+//                 // If attachment is present, link it to the message
+//                 if (values.attachment) {
+//                     new_chat_doc.attachment = values.attachment;
+//                 }
+
+//                 frappe.call({
+//                     method: 'frappe.client.insert',
+//                     args: { doc: new_chat_doc },
+//                     callback: function() {
+//                         frm.page.chat_dialog.fields_dict.new_message.set_value('');
+//                         frm.page.chat_dialog.fields_dict.attachment.set_value('');
+//                         localStorage.removeItem(`draft_message_${frm.doc.name}`);
+//                         load_chat_messages(frm);
+
+//                         // Call the email function after message is sent
+//                         send_email_to_assigned_users(frm, values.new_message);
+//                     }
+//                 });
+//             }
+//         }
+//     });
+
+//     // Load existing messages specific to the current Item
+//     load_chat_messages(frm);
+
+//     // Auto-refresh chat every 5 seconds for real-time updates
+//     frm.page.chat_dialog.chat_interval = setInterval(() => {
+//         load_chat_messages(frm);
+//     }, 5000);
+
+//     // Clear interval when dialog is closed
+//     frm.page.chat_dialog.onhide = () => {
+//         clearInterval(frm.page.chat_dialog.chat_interval);
+//     };
+
+//     // Load draft message if it exists for this Item
+//     const draft = localStorage.getItem(`draft_message_${frm.doc.name}`);
+//     if (draft) {
+//         frm.page.chat_dialog.fields_dict.new_message.set_value(draft);
+//     }
+
+//     // Save draft on input change
+//     frm.page.chat_dialog.fields_dict.new_message.$input.on('input', function() {
+//         const message = $(this).val();
+//         localStorage.setItem(`draft_message_${frm.doc.name}`, message);
+//     });
+
+//     // Show the dialog
+//     frm.page.chat_dialog.show();
+// }
+
+// function load_chat_messages(frm) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'Item Chat',
+//             filters: { 'item_reference': frm.doc.name },
+//             fields: ['message', 'posted_by', 'timestamp', 'attachment'],
+//             order_by: 'timestamp asc'
+//         },
+//         callback: function(response) {
+//             let chat_html = `
+//                 <div class="chat-container" style="max-height: 400px; overflow-y: auto; padding: 10px; background: #f5f7fa; border-radius: 10px;">
+//             `;
+
+//             response.message.forEach(msg => {
+//                 const is_sent = msg.posted_by === frappe.session.user;
+//                 const alignment = is_sent ? 'right' : 'left';
+//                 const bg_color = is_sent ? '#d1e7dd' : '#ffffff';
+//                 const text_align = is_sent ? 'text-right' : 'text-left';
+//                 const msg_owner = is_sent ? 'You' : msg.posted_by;
+
+//                 chat_html += `
+//                     <div style="text-align: ${alignment}; margin: 10px 0;">
+//                         <div style="display: inline-block; max-width: 70%; padding: 10px 15px; background: ${bg_color}; border-radius: 15px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+//                             <div style="font-size: 14px; color: #333; word-wrap: break-word;">
+//                                 ${msg.message}
+//                             </div>
+//                             <small style="display: block; text-align: ${alignment}; color: #999; font-size: 11px; margin-top: 5px;">
+//                                 ${msg_owner} • ${msg.timestamp}
+//                             </small>
+//                 `;
+
+//                 // If there's an attachment, display the download link
+//                 if (msg.attachment) {
+//                     chat_html += `
+//                         <div style="margin-top: 5px;">
+//                             <a href="${msg.attachment}" target="_blank" style="color: #007bff; text-decoration: none; font-size: 13px;">
+//                                 📎 Download Attachment
+//                             </a>
+//                         </div>
+//                     `;
+//                 }
+
+//                 chat_html += `</div></div>`;
+//             });
+
+//             chat_html += `</div>`;
+
+//             const chat_display = frm.page.chat_dialog.fields_dict.chat_display.$wrapper;
+//             chat_display.html(chat_html);
+
+//             // Smooth scroll to the latest message
+//             chat_display.animate({ scrollTop: chat_display[0].scrollHeight }, 'slow');
+//         }
+//     });
+// }
+
+// function send_email_to_assigned_users(frm, message) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'ToDo',
+//             filters: { 'reference_name': frm.doc.name, 'status': 'Open' },
+//             fields: ['allocated_to']
+//         },
+//         callback: function(response) {
+//             const recipients = response.message.map(user => user.allocated_to);
+//             if (recipients.length > 0) {
+//                 frappe.call({
+//                     method: 'frappe.core.doctype.communication.email.make',
+//                     args: {
+//                         recipients: recipients.join(','),
+//                         subject: 'New Chat Message for Item: ' + frm.doc.name,
+//                         content: `
+//                             <p><strong>${frappe.session.user}</strong> posted a new message:</p>
+//                             <p>${message}</p>
+//                             <hr>
+//                             <p>Item: ${frm.doc.name}</p>
+//                             <p><a href="${window.location.href}">Click here to view the Item</a></p>
+//                         `,
+//                         communication_medium: 'Email',
+//                         send_email: 1
+//                     },
+//                     callback: function() {
+//                         frappe.msgprint('Notification email sent!');
+//                     }
+//                 });
+//             }
+//         }
+//     });
+// }
+
+// frappe.ui.form.on('Task', {
+//     refresh: function(frm) {
+//         // Add Chat button with Integrator label
+//         frm.add_custom_button('Chat (Integrator)', () => {
+//             open_chat_dialog(frm);
+//         });
+//     },
+//     onload: function(frm) {
+//         // Clear previous chat dialog when a new item is opened
+//         if (frm.page.chat_dialog) {
+//             frm.page.chat_dialog.hide();
+//             frm.page.chat_dialog = null;
+//         }
+//     }
+// });
+
+// function open_chat_dialog(frm) {
+//     // If dialog already exists, just show it
+//     if (frm.page.chat_dialog) {
+//         frm.page.chat_dialog.show();
+//         return;
+//     }
+
+//     // Create a new chat dialog
+//     frm.page.chat_dialog = new frappe.ui.Dialog({
+//         title: 'Item Chat - ' + frm.doc.name,
+//         fields: [
+//             {
+//                 fieldname: 'chat_display',
+//                 fieldtype: 'HTML'
+//             },
+//             {
+//                 fieldname: 'new_message',
+//                 label: 'New Message',
+//                 fieldtype: 'Small Text'
+//             },
+//             {
+//                 fieldname: 'attachment',
+//                 label: 'Attach File',
+//                 fieldtype: 'Attach'
+//             }
+//         ],
+//         primary_action_label: 'Send',
+//         primary_action(values) {
+//             if (values.new_message || values.attachment) {
+//                 // Prepare data for new chat message
+//                 const new_chat_doc = {
+//                     doctype: 'Item Chat',
+//                     item_reference: frm.doc.name,
+//                     message: values.new_message || '',
+//                     posted_by: frappe.session.user
+//                 };
+
+//                 // If attachment is present, link it to the message
+//                 if (values.attachment) {
+//                     new_chat_doc.attachment = values.attachment;
+//                 }
+
+//                 frappe.call({
+//                     method: 'frappe.client.insert',
+//                     args: { doc: new_chat_doc },
+//                     callback: function() {
+//                         frm.page.chat_dialog.fields_dict.new_message.set_value('');
+//                         frm.page.chat_dialog.fields_dict.attachment.set_value('');
+//                         localStorage.removeItem(`draft_message_${frm.doc.name}`);
+//                         load_chat_messages(frm);
+
+//                         // Call the email function after message is sent
+//                         send_email_to_assigned_users(frm, values.new_message);
+//                     }
+//                 });
+//             }
+//         }
+//     });
+
+//     // Load existing messages specific to the current Item
+//     load_chat_messages(frm);
+
+//     // Auto-refresh chat every 5 seconds for real-time updates
+//     frm.page.chat_dialog.chat_interval = setInterval(() => {
+//         load_chat_messages(frm);
+//     }, 5000);
+
+//     // Clear interval when dialog is closed
+//     frm.page.chat_dialog.onhide = () => {
+//         clearInterval(frm.page.chat_dialog.chat_interval);
+//     };
+
+//     // Load draft message if it exists for this Item
+//     const draft = localStorage.getItem(`draft_message_${frm.doc.name}`);
+//     if (draft) {
+//         frm.page.chat_dialog.fields_dict.new_message.set_value(draft);
+//     }
+
+//     // Save draft on input change
+//     frm.page.chat_dialog.fields_dict.new_message.$input.on('input', function() {
+//         const message = $(this).val();
+//         localStorage.setItem(`draft_message_${frm.doc.name}`, message);
+//     });
+
+//     // Show the dialog
+//     frm.page.chat_dialog.show();
+// }
+
+// function load_chat_messages(frm) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'Item Chat',
+//             filters: { 'item_reference': frm.doc.name },
+//             fields: ['message', 'posted_by', 'timestamp', 'attachment'],
+//             order_by: 'timestamp asc'
+//         },
+//         callback: function(response) {
+//             let chat_html = `
+//                 <div class="chat-container" style="max-height: 400px; overflow-y: auto; padding: 10px; background: #f5f7fa; border-radius: 10px;">
+//             `;
+
+//             response.message.forEach(msg => {
+//                 const is_sent = msg.posted_by === frappe.session.user;
+//                 const alignment = is_sent ? 'right' : 'left';
+//                 const bg_color = is_sent ? '#d1e7dd' : '#ffffff';
+//                 const msg_owner = is_sent ? 'You' : msg.posted_by;
+
+//                 chat_html += `
+//                     <div style="text-align: ${alignment}; margin: 10px 0;">
+//                         <div style="display: inline-block; max-width: 70%; padding: 10px 15px; background: ${bg_color}; border-radius: 15px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+//                             <div style="font-size: 14px; color: #333; word-wrap: break-word;">
+//                                 ${msg.message}
+//                             </div>
+//                             <small style="display: block; text-align: ${alignment}; color: #999; font-size: 11px; margin-top: 5px;">
+//                                 ${msg_owner} • ${msg.timestamp}
+//                             </small>
+//                 `;
+
+//                 // If there's an attachment, display the download link
+//                 if (msg.attachment) {
+//                     chat_html += `
+//                         <div style="margin-top: 5px;">
+//                             <a href="${msg.attachment}" target="_blank" style="color: #007bff; text-decoration: none; font-size: 13px;">
+//                                 📎 Download Attachment
+//                             </a>
+//                         </div>
+//                     `;
+//                 }
+
+//                 chat_html += `</div></div>`;
+//             });
+
+//             chat_html += `</div>`;
+
+//             const chat_display = frm.page.chat_dialog.fields_dict.chat_display.$wrapper;
+//             chat_display.html(chat_html);
+
+//             // Save scroll position before updating
+//             const scrollPos = chat_display.scrollTop();
+//             localStorage.setItem(`scrollPos_${frm.doc.name}`, scrollPos);
+
+//             // Always scroll to the bottom after loading messages
+//             setTimeout(() => {
+//                 chat_display.animate({ scrollTop: chat_display[0].scrollHeight }, 'fast');
+//             }, 100);
+            
+//             // Restore saved scroll position
+//             const savedPos = localStorage.getItem(`scrollPos_${frm.doc.name}`);
+//             if (savedPos) {
+//                 chat_display.scrollTop(savedPos);
+//             }
+//         }
+//     });
+// }
+
+// function send_email_to_assigned_users(frm, message) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'ToDo',
+//             filters: { 'reference_name': frm.doc.name, 'status': 'Open' },
+//             fields: ['allocated_to']
+//         },
+//         callback: function(response) {
+//             const recipients = response.message.map(user => user.allocated_to);
+//             if (recipients.length > 0) {
+//                 frappe.call({
+//                     method: 'frappe.core.doctype.communication.email.make',
+//                     args: {
+//                         recipients: recipients.join(','),
+//                         subject: 'New Chat Message for Item: ' + frm.doc.name,
+//                         content: `
+//                             <p><strong>${frappe.session.user}</strong> posted a new message:</p>
+//                             <p>${message}</p>
+//                             <hr>
+//                             <p>Item: ${frm.doc.name}</p>
+//                             <p><a href="${window.location.href}">Click here to view the Item</a></p>
+//                         `,
+//                         communication_medium: 'Email',
+//                         send_email: 1
+//                     },
+//                     callback: function() {
+//                         frappe.msgprint('Notification email sent!');
+//                     }
+//                 });
+//             }
+//         }
+//     });
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+frappe.ui.form.on('Task', {
+    refresh: function(frm) {
+        // Add Chat button with Integrator label
+        frm.add_custom_button('Chat (Integrator)', () => {
+            open_chat_dialog(frm);
+        });
+    },
+    onload: function(frm) {
+        // Clear previous chat dialog when a new item is opened
+        if (frm.page.chat_dialog) {
+            frm.page.chat_dialog.hide();
+            frm.page.chat_dialog = null;
+        }
+    }
+});
+
+function open_chat_dialog(frm) {
+    // If dialog already exists, just show it
+    if (frm.page.chat_dialog) {
+        frm.page.chat_dialog.show();
+        return;
+    }
+
+    // Create a new chat dialog
+    frm.page.chat_dialog = new frappe.ui.Dialog({
+        title: 'Item Chat - ' + frm.doc.name,
+        fields: [
+            {
+                fieldname: 'chat_display',
+                fieldtype: 'HTML'
+            },
+            {
+                fieldname: 'new_message',
+                label: '',
+                fieldtype: 'Small Text',
+                placeholder: 'Type a message...',
+                reqd: 0
+            },
+            {
+                fieldname: 'attachment',
+                label: 'Attach File',
+                fieldtype: 'Attach'
+            }
+        ],
+        primary_action_label: 'Send',
+        primary_action(values) {
+            if (values.new_message || values.attachment) {
+                // Prepare data for new chat message
+                const new_chat_doc = {
+                    doctype: 'Item Chat',
+                    item_reference: frm.doc.name,
+                    message: values.new_message || '',
+                    posted_by: frappe.session.user
+                };
+
+                // If attachment is present, link it to the message
+                if (values.attachment) {
+                    new_chat_doc.attachment = values.attachment;
+                }
+
+                frappe.call({
+                    method: 'frappe.client.insert',
+                    args: { doc: new_chat_doc },
+                    callback: function() {
+                        frm.page.chat_dialog.fields_dict.new_message.set_value('');
+                        frm.page.chat_dialog.fields_dict.attachment.set_value('');
+                        localStorage.removeItem(`draft_message_${frm.doc.name}`);
+                        load_chat_messages(frm);
+                          // Call the email function after message is sent
+                        send_email_to_assigned_users(frm, values.new_message);
+                    }
+                });
+            }
+        }
+    });
+
+    // Load existing messages specific to the current Item
+    load_chat_messages(frm);
+
+    // Auto-refresh chat every 5 seconds for real-time updates
+    frm.page.chat_dialog.chat_interval = setInterval(() => {
+        load_chat_messages(frm);
+    }, 5000);
+
+    // Clear interval when dialog is closed
+    frm.page.chat_dialog.onhide = () => {
+        clearInterval(frm.page.chat_dialog.chat_interval);
+    };
+
+    // Load draft message if it exists for this Item
+    const draft = localStorage.getItem(`draft_message_${frm.doc.name}`);
+    if (draft) {
+        frm.page.chat_dialog.fields_dict.new_message.set_value(draft);
+    }
+
+    // Save draft on input change
+    frm.page.chat_dialog.fields_dict.new_message.$input.on('input', function() {
+        const message = $(this).val();
+        localStorage.setItem(`draft_message_${frm.doc.name}`, message);
+    });
+
+    // Show the dialog
+    frm.page.chat_dialog.show();
+}
+
+function load_chat_messages(frm) {
+    frappe.call({
+        method: 'frappe.client.get_list',
+        args: {
+            doctype: 'Item Chat',
+            filters: { 'item_reference': frm.doc.name },
+            fields: ['message', 'posted_by', 'timestamp', 'attachment'],
+            order_by: 'timestamp asc',
+            limit_page_length: 0
+        },
+        callback: function(response) {
+            let chat_html = `
+                <div class="chat-container" style="
+                    max-height: 400px;
+                    overflow-y: auto;
+                    display: flex;
+                    flex-direction: column-reverse;
+                    padding: 10px;
+                    background: #f5f7fa;
+                    border-radius: 10px;
+                ">
+            `;
+
+            response.message.reverse().forEach(msg => {
+                const is_sent = msg.posted_by === frappe.session.user;
+                const alignment = is_sent ? 'flex-end' : 'flex-start';
+                const bg_color = is_sent ? '#DCF8C6' : '#FFFFFF';
+                const text_color = is_sent ? '#333' : '#555';
+                const msg_owner = is_sent ? 'You' : msg.posted_by;
+
+                chat_html += `
+                    <div style="display: flex; justify-content: ${alignment}; margin: 5px 0;">
+                        <div style="
+                            max-width: 70%;
+                            padding: 10px 15px;
+                            background: ${bg_color};
+                            color: ${text_color};
+                            border-radius: 15px;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                            word-wrap: break-word;
+                            overflow-wrap: break-word;
+                            line-height: 1.4;
+                            font-size: 14px;
+                            position: relative;
+                        ">
+                            ${msg.message}
+                            <small style="
+                                display: block;
+                                text-align: ${is_sent ? 'right' : 'left'};
+                                color: #999;
+                                font-size: 11px;
+                                margin-top: 5px;
+                            ">
+                                ${msg_owner} • ${msg.timestamp}
+                            </small>
+                `;
+
+                // If there's an attachment, display the download link
+                if (msg.attachment) {
+                    chat_html += `
+                        <div style="margin-top: 5px;">
+                            <a href="${msg.attachment}" target="_blank" style="
+                                color: #007bff;
+                                text-decoration: none;
+                                font-size: 13px;
+                            ">
+                                📎 Download Attachment
+                            </a>
+                        </div>
+                    `;
+                }
+
+                chat_html += `</div></div>`;
+            });
+
+            chat_html += `</div>`;
+
+            const chat_display = frm.page.chat_dialog.fields_dict.chat_display.$wrapper;
+            chat_display.html(chat_html);
+
+            // Smoothly scroll to bottom after loading messages
+            setTimeout(() => {
+                chat_display.animate({ scrollTop: 0 }, 'fast');
+            }, 100);
+        }
+    });
+}
+
+function send_email_to_assigned_users(frm, message) {
+    frappe.call({
+        method: 'frappe.client.get_list',
+        args: {
+            doctype: 'ToDo',
+            filters: {
+                'reference_name': frm.doc.name,
+                'status': 'Open'
+            },
+            fields: ['allocated_to']
+        },
+        callback: function(response) {
+            const recipients = response.message
+                .map(user => user.allocated_to)
+                .filter(email => email); // Ensure no empty emails
+
+            if (recipients.length > 0) {
+                frappe.call({
+                    method: 'frappe.core.doctype.communication.email.make',
+                    args: {
+                        recipients: recipients.join(','),
+                        subject: `New Chat Message for Task: ${frm.doc.name}`,
+                        content: `
+                            <p><strong>${frappe.session.user}</strong> posted a new message:</p>
+                            <p>${message}</p>
+                            <hr>
+                            <p>Task: ${frm.doc.name}</p>
+                            <p><a href="${window.location.href}">Click here to view the Task</a></p>
+                        `,
+                        communication_medium: 'Email',
+                        send_email: 1
+                    },
+                    callback: function() {
+                        frappe.msgprint('Notification email sent to assigned users!');
+                    }
+                });
+            } else {
+                frappe.msgprint('No assigned users found for this Task.');
+            }
+        }
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// frappe.ui.form.on('Task', {
+//     refresh: function(frm) {
+//         frm.add_custom_button('Chat (BBB)', () => {
+//             open_chat_dialog(frm);
+//         });
+//     },
+//     onload: function(frm) {
+//         if (frm.page.chat_dialog) {
+//             frm.page.chat_dialog.hide();
+//             frm.page.chat_dialog = null;
+//         }
+//     }
+// });
+
+// function open_chat_dialog(frm) {
+//     if (frm.page.chat_dialog) {
+//         frm.page.chat_dialog.show();
+//         return;
+//     }
+
+//     frm.page.chat_dialog = new frappe.ui.Dialog({
+//         title: 'Item Chat - ' + frm.doc.name,
+//         fields: [
+//             {
+//                 fieldname: 'assigned_users',
+//                 fieldtype: 'HTML'
+//             },
+//             {
+//                 fieldname: 'chat_display',
+//                 fieldtype: 'HTML'
+//             },
+//             {
+//                 fieldname: 'new_message',
+//                 label: '',
+//                 fieldtype: 'Text Editor',
+//                 placeholder: 'Type a message...',
+//                 reqd: 0
+//             }
+//         ],
+//         primary_action_label: 'Send',
+//         primary_action(values) {
+//             if (values.new_message.trim()) {
+//                 const new_chat_doc = {
+//                     doctype: 'Item Chat',
+//                     item_reference: frm.doc.name,
+//                     message: values.new_message,
+//                     posted_by: frappe.session.user
+//                 };
+
+//                 frappe.call({
+//                     method: 'frappe.client.insert',
+//                     args: { doc: new_chat_doc },
+//                     callback: function() {
+//                         frm.page.chat_dialog.fields_dict.new_message.set_value('');
+//                         load_chat_messages(frm, true);
+//                     }
+//                 });
+//             }
+//         }
+//     });
+
+//     load_assigned_users(frm);
+//     load_chat_messages(frm);
+
+//     frm.page.chat_dialog.chat_interval = setInterval(() => {
+//         load_chat_messages(frm);
+//     }, 3000);
+
+//     frm.page.chat_dialog.onhide = () => {
+//         clearInterval(frm.page.chat_dialog.chat_interval);
+//     };
+
+//     frm.page.chat_dialog.show();
+// }
+
+// function load_assigned_users(frm) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'ToDo',
+//             filters: { 'reference_name': frm.doc.name, 'status': 'Open' },
+//             fields: ['owner']
+//         },
+//         callback: function(response) {
+//             let users_html = `<div class="user-avatars" style="display: flex; gap: 10px; padding: 10px;">`;
+
+//             response.message.forEach(user => {
+//                 const user_email = user.owner;
+//                 frappe.call({
+//                     method: 'frappe.client.get',
+//                     args: {
+//                         doctype: 'User',
+//                         name: user_email
+//                     },
+//                     callback: function(user_details) {
+//                         const user_image = user_details.message.user_image || '/assets/frappe/images/ui/avatar.png';
+//                         users_html += `
+//                             <div style="text-align: center;">
+//                                 <img src="${user_image}" alt="${user_email}" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+//                                 <div style="font-size: 10px; color: #777;">${user_email}</div>
+//                             </div>
+//                         `;
+//                         frm.page.chat_dialog.fields_dict.assigned_users.$wrapper.html(users_html);
+//                     }
+//                 });
+//             });
+//             users_html += `</div>`;
+//         }
+//     });
+// }
+
+// function load_chat_messages(frm, force_scroll = false) {
+//     frappe.call({
+//         method: 'frappe.client.get_list',
+//         args: {
+//             doctype: 'Item Chat',
+//             filters: { 'item_reference': frm.doc.name },
+//             fields: ['message', 'posted_by', 'timestamp'],
+//             order_by: 'timestamp asc',
+//             limit_page_length: 0
+//         },
+//         callback: function(response) {
+//             let chat_html = `
+//                 <div class="chat-container" style="
+//                     max-height: 60vh;
+//                     overflow-y: auto;
+//                     display: flex;
+//                     flex-direction: column;
+//                     padding: 10px;
+//                     background: linear-gradient(135deg, #74EBD5 0%, #9FACE6 100%);
+//                     border-radius: 10px;
+//                     margin-bottom: 60px;
+//                     font-family: 'Arial', sans-serif;
+//                     animation: backgroundAnimation 10s linear infinite;
+//                 ">
+//             `;
+
+//             response.message.forEach(msg => {
+//                 const is_sent = msg.posted_by === frappe.session.user;
+//                 const alignment = is_sent ? 'flex-end' : 'flex-start';
+//                 const bg_color = is_sent ? '#4CAF50' : '#FFFFFF';
+//                 const text_color = is_sent ? '#fff' : '#333';
+//                 const msg_owner = is_sent ? 'You' : msg.posted_by;
+
+//                 chat_html += `
+//                     <div style="display: flex; justify-content: ${alignment}; margin: 5px 0;">
+//                         <div style="
+//                             max-width: 70%;
+//                             padding: 10px 15px;
+//                             background: ${bg_color};
+//                             color: ${text_color};
+//                             border-radius: 20px;
+//                             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+//                             word-wrap: break-word;
+//                             overflow-wrap: break-word;
+//                             line-height: 1.4;
+//                             font-size: 14px;
+//                             position: relative;
+//                             animation: fadeIn 0.3s ease;
+//                         ">
+//                             ${msg.message}
+//                             <small style="
+//                                 display: block;
+//                                 text-align: ${is_sent ? 'right' : 'left'};
+//                                 color: #eee;
+//                                 font-size: 11px;
+//                                 margin-top: 5px;
+//                             ">
+//                                 ${msg_owner} • ${msg.timestamp}
+//                             </small>
+//                         </div>
+//                     </div>
+//                 `;
+//             });
+
+//             chat_html += `</div>`;
+
+//             const chat_display = frm.page.chat_dialog.fields_dict.chat_display.$wrapper;
+//             chat_display.html(chat_html);
+
+//             const is_near_bottom = chat_display[0].scrollHeight - chat_display.scrollTop() <= chat_display.outerHeight() + 100;
+
+//             if (is_near_bottom || force_scroll) {
+//                 chat_display.animate({ scrollTop: chat_display[0].scrollHeight }, 'fast');
+//             }
+//         }
+//     });
+// }
+
+
+
+
+
+create doctype Item chat ---------------
+filed name -  Item Reference
+field type - link
+option - Item
+
+filed name - Message
+field type - Text Editor
+option - 
+
+
+
+filed name - Posted By
+field type - Data
+option - frappe.session.user
+
+
+filed name - Timestamp
+field type - DateTime
+option - Now
+
+
+
+
+
+
+
+
+
