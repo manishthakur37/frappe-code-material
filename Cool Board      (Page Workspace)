@@ -413,6 +413,420 @@ frappe.pages["cool-board"].on_page_load = (wrapper) => {
 });
 
 
+frappe.pages["cool-board"].on_page_load = (wrapper) => {
+	var page = frappe.ui.make_app_page({
+	  parent: wrapper,
+	  title: "Custom Page",
+	  single_column: true,
+	})
+  
+	// Add custom CSS for better matching the design
+	$(`<style>
+	  .custom-dashboard {
+		display: flex;
+		height: 100%;
+		overflow: hidden;
+	  }
+	  
+	  .sidebar {
+		width: 200px;
+		background: white;
+		border-right: 1px solid #e5e7eb;
+		padding: 15px;
+	  }
+	  
+	  .sidebar-menu {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	  }
+	  
+	  .sidebar-menu li {
+		margin-bottom: 12px;
+		display: flex;
+		align-items: center;
+	  }
+	  
+	  .sidebar-menu li a {
+		color: #64748b;
+		text-decoration: none;
+		font-size: 14px;
+	  }
+	  
+	  .sidebar-menu li a:hover {
+		color: #3b82f6;
+	  }
+	  
+	  .sidebar-menu li a.active {
+		color: #3b82f6;
+		font-weight: 500;
+	  }
+	  
+	  .sidebar-menu li i {
+		margin-right: 10px;
+		width: 16px;
+		text-align: center;
+	  }
+	  
+	.main-content {
+  flex: 1;
+  padding: 20px;
+  background: #f9fafb;
+  overflow-y: auto; /* 👈 Yeh line vertical scroll enable kar rahi hai */
+}
+
+	  
+	  .page-title {
+		font-size: 20px;
+		font-weight: 600;
+		margin-bottom: 20px;
+		color: #1e293b;
+	  }
+	  
+	  .section-title {
+		font-size: 16px;
+		font-weight: 500;
+		margin-bottom: 15px;
+		color: #475569;
+	  }
+	  
+	  .card-grid {
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		gap: 15px;
+		margin-bottom: 25px;
+	  }
+	  
+	  .card {
+		border-radius: 8px;
+		overflow: hidden;
+		box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+	  }
+	  
+	  .card-content {
+		padding: 15px;
+		color: white;
+		position: relative;
+		min-height: 100px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	  }
+	  
+	  .card-value {
+		font-size: 28px;
+		font-weight: 700;
+		margin-bottom: 5px;
+	  }
+	  
+	  .card-label {
+		font-size: 14px;
+		opacity: 0.9;
+	  }
+	  
+	  .card-icon {
+		position: absolute;
+		top: 15px;
+		right: 15px;
+		background: rgba(255,255,255,0.3);
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	  }
+	  
+	  .overview-section {
+		background: white;
+		border-radius: 8px;
+		padding: 20px;
+		box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+	  }
+	  
+	 .charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+	  
+	  .chart-container {
+		border: 1px solid #e5e7eb;
+		border-radius: 8px;
+		padding: 15px;
+	  }
+	  
+	  .chart-title {
+		font-size: 15px;
+		font-weight: 500;
+		text-align: center;
+		margin-bottom: 10px;
+	  }
+	  
+	  .chart-subtitle {
+		font-size: 13px;
+		color: #64748b;
+		text-align: center;
+		margin-bottom: 15px;
+	  }
+	  
+	  /* Card gradient backgrounds */
+	  .bg-customer {
+		background: linear-gradient(to right, #F6C23E, #F8A51B);
+	  }
+	  
+	  .bg-invoice {
+		background: linear-gradient(to right, #FFC0CB, #FFB6C1);
+	  }
+	  
+	  .bg-gate-pass {
+		background: linear-gradient(to right, #FF6B6B, #FF4040);
+	  }
+	  
+	  .bg-ledger {
+		background: linear-gradient(to right, #7B68EE, #6A5ACD);
+	  }
+	  
+	  .bg-order {
+		background: linear-gradient(to right, #4682B4, #4169E1);
+	  }
+	</style>`).appendTo(document.head)
+  
+	// Create Layout
+	const $content = $(`
+	  <div class="custom-dashboard">
+		<!-- Sidebar -->
+		<div class="sidebar">
+		  <h2 style="font-size: 15px; font-weight: 500; margin-bottom: 20px; color: #475569;">Menu</h2>
+		  <ul class="sidebar-menu">
+			<li>
+			  <i class="fa fa-home" style="color: #3b82f6;"></i>
+			  <a href="#">Home</a>
+			</li>
+			<li>
+			  <i class="fa fa-line-chart" style="color: #3b82f6;"></i>
+			  <a href="#" class="active">Sales</a>
+			</li>
+			<li>
+			  <i class="fa fa-shopping-cart" style="color: #3b82f6;"></i>
+			  <a href="#">Purchase</a>
+			</li>
+			<li>
+			  <i class="fa fa-cubes" style="color: #3b82f6;"></i>
+			  <a href="#">Inventory</a>
+			</li>
+			<li>
+			  <i class="fa fa-user" style="color: #3b82f6;"></i>
+			  <a href="#">Accounts</a>
+			</li>
+			<li>
+			  <i class="fa fa-money" style="color: #3b82f6;"></i>
+			  <a href="#">Simplified Salaries</a>
+			</li>
+			<li>
+			  <i class="fa fa-industry" style="color: #3b82f6;"></i>
+			  <a href="#">Production</a>
+			</li>
+			<li>
+			  <i class="fa fa-book" style="color: #3b82f6;"></i>
+			  <a href="#">Training Guide</a>
+			</li>
+			<li>
+			  <i class="fa fa-bar-chart" style="color: #3b82f6;"></i>
+			  <a href="#">Frappe Charts</a>
+			</li>
+		  </ul>
+		</div>
+  
+		<!-- Main Content -->
+		<div class="main-content">
+		  <h1 class="page-title">Sales</h1>
+  
+		  <!-- Quick Access Section -->
+		  <div>
+			<h2 class="section-title">Quick Access</h2>
+			<div class="card-grid">
+			  <!-- Customer Card -->
+			  <div class="card">
+				<div class="card-content bg-customer">
+				  <div>
+					<div class="card-value">13</div>
+					<div class="card-label">Customer</div>
+				  </div>
+				  <div class="card-icon">
+					<i class="fa fa-users"></i>
+				  </div>
+				</div>
+			  </div>
+  
+			  <!-- Sales Invoice Card -->
+			  <div class="card">
+				<div class="card-content bg-invoice">
+				  <div>
+					<div class="card-value">18</div>
+					<div class="card-label">Sales Invoice</div>
+				  </div>
+				  <div class="card-icon">
+					<i class="fa fa-file-text-o"></i>
+				  </div>
+				</div>
+			  </div>
+  
+			  <!-- Gate Pass Card -->
+			  <div class="card">
+				<div class="card-content bg-gate-pass">
+				  <div>
+					<div class="card-value">📜</div>
+					<div class="card-label">Gate Pass</div>
+				  </div>
+				  <div class="card-icon">
+					<i class="fa fa-file-o"></i>
+				  </div>
+				</div>
+			  </div>
+  
+			  <!-- Sales Ledger Card -->
+			  <div class="card">
+				<div class="card-content bg-ledger">
+				  <div>
+					<div style="font-size: 16px; font-weight: 600;">Sales Ledger</div>
+				  </div>
+				  <div class="card-icon">
+					<i class="fa fa-truck"></i>
+				  </div>
+				</div>
+			  </div>
+  
+			  <!-- Sales Order Card -->
+			  <div class="card">
+				<div class="card-content bg-order">
+				  <div>
+					<div class="card-value">2</div>
+					<div class="card-label">Sales Order</div>
+				  </div>
+				  <div class="card-icon">
+					<i class="fa fa-cog"></i>
+				  </div>
+				</div>
+			  </div>
+			</div>
+		  </div>
+  
+		  <!-- Sales Overview -->
+		  <div class="overview-section">
+			<h3 style="font-size: 17px; font-weight: 600; margin-bottom: 20px;">Sales Overview</h3>
+			
+			<div class="charts-container">
+			  <!-- Top 5 Customers Chart -->
+			  <div class="chart-container">
+				<div class="chart-title">Top 5 Customers</div>
+				<div class="chart-subtitle">Total Sales Amount</div>
+				<div id="customersChart" style="height: 250px;"></div>
+			  </div>
+			  
+			  <!-- Monthly Sales Chart -->
+			  <div class="chart-container">
+				<div class="chart-title">Monthly Sales</div>
+				<div class="chart-subtitle">Monthly Sales</div>
+				<div id="salesChart" style="height: 250px;"></div>
+			  </div>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	`)
+  
+	$content.appendTo(page.body)
+	// 👇 Yeh card waali value update hogi
+
+
+  
+	setTimeout(() => {
+		// 📊 Monthly Sales Chart
+		const salesData = {
+		  labels: [
+			"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+			"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+		  ],
+		  datasets: [
+			{
+			  name: "Monthly Sales",
+			  values: [10000, 12000, 15000, 13000, 14000, 16000, 17000, 18000, 19000, 20000, 22000, 25000],
+			},
+		  ],
+		};
+	  
+		new frappe.Chart("#salesChart", {
+		  title: "Monthly Sales Overview",
+		  data: salesData,
+		  type: "bar",
+		  height: 250,
+		  colors: ["#6DCFF6"],
+		  axisOptions: {
+			xAxisMode: "tick",
+			yAxisMode: "tick",
+			xIsSeries: true,  // Ensures correct month formatting
+		  },
+		  barOptions: {
+			spaceRatio: 0.2,  // Reduces gap for better readability
+		  },
+		});
+	  
+		// 📊 Top 5 Customers Chart
+		const customersData = {
+		  labels: ["Usman", "Fatima Urooj", "Ali Khan", "Sara Ahmed", "Zain Raza"],
+		  datasets: [
+			{
+			  name: "Sales Amount",
+			  values: [25000, 5000, 18000, 12000, 8000],
+			},
+		  ],
+		};
+	  
+		new frappe.Chart("#customersChart", {
+		  title: "Top 5 Customers",
+		  data: customersData,
+		  type: "bar",
+		  height: 250,
+		  colors: ["#6DCFF6"],
+		  axisOptions: {
+			xAxisMode: "tick",
+			yAxisMode: "tick",
+		  },
+		  barOptions: {
+			spaceRatio: 0.2,  // Adjusted for better visibility
+		  },
+		});
+	  
+	  }, 500);
+	  
+  
+	// Add save button functionality
+	page.set_primary_action("Save", () => {
+	  frappe.show_alert({
+		message: "Dashboard settings saved!",
+		indicator: "green",
+	  })
+	})
+  }
+  
+  frappe.call({
+    method: "frappe.client.get_count",
+    args: {
+        doctype: "User"
+    },
+    callback: function (r) {
+        if (r.message !== undefined) {
+            // Replace the hardcoded value with API response
+            $(".card-label:contains('Customer')")
+              .closest(".card-content")
+              .find(".card-value")
+              .text(r.message);
+        }
+    }
+});
+
 
 
 
