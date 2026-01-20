@@ -1,0 +1,32 @@
+frappe.ui.form.on("Customer", {
+    onload: function(frm) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    let lat = position.coords.latitude;
+                    let lng = position.coords.longitude;
+
+                    console.log("Latitude:", lat);
+                    console.log("Longitude:", lng);
+
+                    // Reverse geocoding for full details
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log("Full Location Data:", data);
+
+                            if (data.display_name) {
+                                console.log("Address:", data.display_name);
+                            }
+                        });
+
+                },
+                function(error) {
+                    console.log("Location error:", error.message);
+                }
+            );
+        } else {
+            console.log("Browser geolocation support nahi karta.");
+        }
+    }
+});
