@@ -30,3 +30,48 @@ frappe.ui.form.on("Customer", {
         }
     }
 });
+
+
+
+
+
+frappe.ui.form.on("Customer", {
+    onload_post_render: function(frm) {
+        if (!navigator.geolocation) {
+            console.log("Geolocation support nahi hai");
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                let lat = position.coords.latitude;
+                let lng = position.coords.longitude;
+
+                console.log("Lat:", lat);
+                console.log("Lng:", lng);
+
+                // Set fields
+                frm.set_value("latitude", lat);
+                frm.set_value("longitude", lng);
+
+                frm.refresh_field("latitude");
+                frm.refresh_field("longitude");
+
+                // Reverse geocoding
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log("Address data:", data);
+
+                        if (data && data.display_name) {
+                            frm.set_value("location", data.display_name);
+                            frm.refresh_field("location");
+                        }
+                    });
+            },
+            function(error) {
+                console.log("Location error:", error.message);
+            }
+        );
+    }
+});
